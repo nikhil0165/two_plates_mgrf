@@ -3,3 +3,4 @@ results*
 *.py~
 *_test.py*
 __pycache__
+*.sh*
