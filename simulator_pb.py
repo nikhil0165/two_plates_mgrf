@@ -1,5 +1,4 @@
 from packages import*
-#from physical_param import *
 from numerical_param import *
 import pb_2plate
 import dh_2plate

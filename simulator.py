@@ -1,5 +1,4 @@
 import mgrf_2plate
-#from physical_param import *
 from numerical_param import *
 import energy_2plate
 start = timeit.default_timer()
