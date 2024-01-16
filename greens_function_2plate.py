@@ -110,10 +110,8 @@ def Gcap_full(n_profile,n_bulk,valency, s, domain,epsilon):# function for \hat{G
     pert_norm1 = np.inf
     P.change_scales(dealias)
     p=0
-    #print('starting P for ' + str(s))
     while pert_norm1 > tolerance_greens:
         p =p+1
-        #print('P not done for ' + str(s))
         solver1.newton_iteration()
         pert_norm1 = sum(pert1.allreduce_data_norm('c', 2) for pert1 in solver1.perturbations)
 
