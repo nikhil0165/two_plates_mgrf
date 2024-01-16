@@ -1,0 +1,5 @@
+results*
+*.out
+*.py~
+*_test.py*
+__pychache__
