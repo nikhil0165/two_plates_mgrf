@@ -87,7 +87,7 @@ def Gcap_full(n_profile,n_bulk,valency, s, domain,epsilon):# function for \hat{G
     omega_sqr = dist.Field(bases = zbasis)
     omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_profile, valency, epsilon)
     omega_b = np.sqrt(s * s + calculate.kappa_sqr(n_bulk, valency, epsilon))
-    omega_min = np.sqrt(np.min(omega_sqr['g']))
+    omega_min = min(omega_b,np.min(np.sqrt(omega_sqr['g']))) 
 
     # Fields for G(P or log(U))
     P = dist.Field(name = 'P', bases = zbasis)
@@ -116,10 +116,7 @@ def Gcap_full(n_profile,n_bulk,valency, s, domain,epsilon):# function for \hat{G
         #print('P not done for ' + str(s))
         solver1.newton_iteration()
         pert_norm1 = sum(pert1.allreduce_data_norm('c', 2) for pert1 in solver1.perturbations)
-    #     print(str(pert_norm1) + ' for s = ' + str(s))
-    #     #print('p = ' + str(p))
-    
-    # print('P done for ' + str(s))
+
     Pz = d3.Gradient(P).evaluate()
     Pz.change_scales(1)
     Pz = Pz.allgather_data('g')[0]
@@ -153,12 +150,9 @@ def Gcap_full(n_profile,n_bulk,valency, s, domain,epsilon):# function for \hat{G
     q = 1
     while pert_norm2 > tolerance_greens:
         q = q+1
-        #print('Q not done')
         solver2.newton_iteration()
         pert_norm2 = sum(pert2.allreduce_data_norm('c', 2) for pert2 in solver2.perturbations)
-    #     print('q =' + str(q))
-    
-    # print('Q done for ' + str(s))
+
     Qz = d3.Gradient(Q).evaluate()
     Qz.change_scales(1)
     Qz = Qz.allgather_data('g')[0]
