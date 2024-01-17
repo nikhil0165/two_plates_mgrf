@@ -48,7 +48,7 @@ def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to cha
     zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = bounds)
 
     # Fields
-    n_ions = np.len(nconc_complete[0,:])
+    n_ions = len(nconc_complete[0,:])
     nconc = np.zeros((new_grid,n_ions))
     psi = dist.Field(name = 'psi',bases = zbasis)
     psi['g'] = psi_complete
