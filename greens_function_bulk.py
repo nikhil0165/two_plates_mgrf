@@ -4,166 +4,137 @@ from numerical_param import*
 
 
 def Gcap_free(grid_points,s,domain,epsilon):#\hat{Go}
+    
+    bounds = (0,domain)
+    Lz = bounds[1]
 
-        bounds = (0,domain)
-        Lz = bounds[1]
-        
-        # Bases
-        coords = d3.CartesianCoordinates('z')
-        dist = d3.Distributor(coords,dtype = np.float64)
-        zbasis = d3.Chebyshev(coords['z'], size=grid_points,bounds =bounds, dealias=dealias)
+    # Bases
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64) 
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = bounds,dealias = dealias)
 
-        # General fields
-        z = dist.local_grids(zbasis)
-        dz = lambda A: d3.Differentiate(A, coords['z'])
-        lift_basis = zbasis.derivative_basis(2)
-        lift = lambda A, n: d3.Lift(A, lift_basis, n)
+    # General fields
+    z = dist.local_grids(zbasis)
+    dz = lambda A: d3.Differentiate(A,coords['z'])
+    lift_basis = zbasis.derivative_basis(2)
+    lift = lambda A,n: d3.Lift(A,lift_basis,n)
 
-        # Fields for G(P or log(U))
-        P = dist.Field(name='P', bases=zbasis)
-        tau_1 = dist.Field(name='tau_1')
-        tau_2 = dist.Field(name='tau_2')
+    # Fields for G(Pz or dzlog(U))
+    Pz = dist.Field(name = 'Pz',bases = zbasis)
+    tau_1 = dist.Field(name = 'tau_1')
 
-        # Differential equation for P (U)
-        problem = d3.NLBVP([P,tau_1, tau_2], namespace=locals())
-        problem.add_equation("-lap(P) + s*s + lift(tau_1,-1) + lift(tau_2,-2) = grad(P)@grad(P)")
+    # Differential equation for Pz (U)
+    problem = d3.NLBVP([Pz,tau_1],namespace = locals())
+    problem.add_equation("-dz(Pz) + s*s + lift(tau_1,-1) = Pz**2")
 
-        #Boundary conditions for P/U
-        problem.add_equation("P(z=0) = 0")
-        problem.add_equation("dz(P)(z=0) = s")
+    # Boundary conditions for Pz/U
+    problem.add_equation("Pz(z=0) = s")
 
-        # Initial guess
-        P['g'] = s*np.squeeze(z)
+    # Initial guess
+    Pz['g'] = s
 
-        # Solver
-        solver = problem.build_solver(ncc_cutoff = ncc_cutoff_greens)
-        pert_norm = np.inf
-        P.change_scales(dealias)
-        while pert_norm > tolerance_greens:
-            solver.newton_iteration()
-            pert_norm = sum(pert.allreduce_data_norm('c', 2) for pert in solver.perturbations)
+    # Solver
+    solver0 = problem.build_solver(ncc_cutoff = ncc_cutoff_greens)
+    pert_norm0 = np.inf
+    Pz.change_scales(dealias)
+    while pert_norm0 > tolerance_greens:
+        solver0.newton_iteration()
+        pert_norm0 = sum(pert0.allreduce_data_norm('c',2) for pert0 in solver0.perturbations)
 
-        Pz = d3.Gradient(P).evaluate()
-        Pz.change_scales(1)
-        Pz = Pz.allgather_data('g')[0]
+    Pz.change_scales(1)
+    Pz = Pz['g']
+    Qz = -Pz
 
-        P.change_scales(1)
-        Pg = P['g']
+    ## Sturm-Liouville for G
+    G = (-1 / epsilon) * np.true_divide(1,Qz - Pz)
 
-        U = [Decimal(str(value)).exp() for value in Pg]
-        V = U[::-1]
+    del z,Pz,Qz,tau_1,dz,lift_basis,lift,problem,solver0,pert_norm0
+    gc.collect()
 
-        Uz = [U[i]*Decimal(str(Pz[i])) for i in range(0,grid_points)]
-        Vz = Uz[::-1]
-        Vz = [-x for x in Vz]
-
-        ## Sturm-Liouville for Go
-
-        C = [Decimal(1) / (U[i] * Vz[i] - V[i] * Uz[i]) for i in range(0,grid_points)]
-        G = np.array([C[i]*U[i]*V[i]*Decimal(-1/epsilon) for i in range(0,grid_points)],dtype = np.float64)
-
-        del z,P,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,Pz,U,V,Uz,Vz,C
-        gc.collect()
-
-        return G
+    return G
 
 def Gcap_full(n_bulk_profile, n_bulk, valency, s, domain,epsilon): # \hat{G}
 
-        grid_points = len(n_bulk_profile)
-        bounds = (0, domain)
-        Lz = bounds[1]
+    grid_points = len(n_bulk_profile)
+    bounds = (0,domain)
+    Lz = bounds[1]
 
-        # Bases
-        coords = d3.CartesianCoordinates('z')
-        dist = d3.Distributor(coords, dtype = np.float64)  
-        zbasis = d3.Chebyshev(coords['z'], size = grid_points, bounds = bounds, dealias=dealias)
+    # Bases
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64)
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = bounds,dealias = dealias)
 
-        # General fields
-        z = dist.local_grids(zbasis)
-        dz = lambda A: d3.Differentiate(A, coords['z'])
-        lift_basis = zbasis.derivative_basis(2)
-        lift = lambda A, n: d3.Lift(A, lift_basis, n)
+    # General fields
+    z = dist.local_grids(zbasis)
+    dz = lambda A: d3.Differentiate(A,coords['z'])
+    lift_basis = zbasis.derivative_basis(2)
+    lift = lambda A,n: d3.Lift(A,lift_basis,n)
 
-        omega_sqr = dist.Field(bases = zbasis)
-        omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_bulk_profile, valency, epsilon)
-        omega_b = np.sqrt(s * s + calculate.kappa_sqr(n_bulk, valency, epsilon))
+    omega_sqr = dist.Field(bases = zbasis)
+    omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_bulk_profile,valency,epsilon)
+    omega_b = np.sqrt(s * s + calculate.kappa_sqr(n_bulk,valency,epsilon))
 
-        # Fields for G(P or log(U))
-        P = dist.Field(name = 'P', bases = zbasis)
-        tau_1 = dist.Field(name = 'tau_1')
-        tau_2 = dist.Field(name = 'tau_2')
+    # Fields for G(Pz or log(U))
+    Pz = dist.Field(name = 'Pz',bases = zbasis)
+    tau_1 = dist.Field(name = 'tau_1')
 
-        # Differential equation for P/U
-        problem1 = d3.NLBVP([P, tau_1, tau_2], namespace = locals())
-        problem1.add_equation("-lap(P) + omega_sqr + lift(tau_1,-1) + lift(tau_2,-2) = grad(P)@grad(P)")
+    # Differential equation for Pz/U
+    problem = d3.NLBVP([Pz,tau_1],namespace = locals())
+    problem.add_equation("-dz(Pz) + omega_sqr + lift(tau_1,-1) = Pz**2")
 
-        # Boundary conditions for P
-        problem1.add_equation("P(z=0) = 0")
-        problem1.add_equation("dz(P)(z=0) = omega_b")
+    # Boundary conditions for Pz
+    problem.add_equation("Pz(z=0) = omega_b")
 
-        # Initial guess
-        P['g'] = omega_b * np.squeeze(z)
+    # Initial guess for Pz
+    Pz['g'] = omega_b
 
-        # Solver
-        solver1 = problem1.build_solver(ncc_cutoff = ncc_cutoff_greens)
-        pert_norm1 = np.inf
-        P.change_scales(dealias)
-        while pert_norm1 > tolerance_pb:
-                solver1.newton_iteration()
-                pert_norm1 = sum(pert.allreduce_data_norm('c', 2) for pert in solver1.perturbations)
+    # Solver
+    solver1 = problem.build_solver(ncc_cutoff = ncc_cutoff_greens)
+    pert_norm1 = np.inf
+    Pz.change_scales(dealias)
+    p = 0
+    while pert_norm1 > tolerance_greens:
+        p = p + 1
+        solver1.newton_iteration()
+        pert_norm1 = sum(pert1.allreduce_data_norm('c',2) for pert1 in solver1.perturbations)
 
-        Pz = d3.Gradient(P).evaluate()
-        Pz.change_scales(1)
-        Pz = Pz.allgather_data('g')[0]
+    Pz.change_scales(1)
+    Pz = Pz.allgather_data('g')[0]
 
-        P.change_scales(1)
-        Pg = P['g']
+    # Fields for G(Qz or log(V))
+    Qz = dist.Field(name = 'Qz',bases = zbasis)
+    tau_1 = dist.Field(name = 'tau_1')
 
-        U = [Decimal(str(value)).exp() for value in Pg]
-        Uz = [U[i]*Decimal(str(Pz[i])) for i in range(0,grid_points)]
+    # Differential equation for Qz/V
+    problem1 = d3.NLBVP([Qz,tau_1],namespace = locals())
+    problem1.add_equation("-dz(Qz) + omega_sqr + lift(tau_1,-1) = Qz**2")
 
-        # Fields for G(Q or log(V))
-        Q = dist.Field(name = 'Q', bases = zbasis)
-        tau_1 = dist.Field(name = 'tau_1')
-        tau_2 = dist.Field(name = 'tau_2')
+    # Boundary conditions for Qz
+    problem1.add_equation("Qz(z=Lz) = -omega_b")
 
-        # Differential equation for Q/V
-        problem2 = d3.NLBVP([Q, tau_1, tau_2], namespace = locals())
-        problem2.add_equation("-lap(Q) + omega_sqr + lift(tau_1,-1) + lift(tau_2,-2) = grad(Q)@grad(Q)")
+    # Initial guess for Qz
+    Qz['g'] = -omega_b
 
-        # Boundary conditions for Q
-        problem2.add_equation("Q(z=Lz) = 0")
-        problem2.add_equation("dz(Q)(z=Lz) = -omega_b")
+    # Solver
+    solver2 = problem1.build_solver(ncc_cutoff = ncc_cutoff_greens)
+    pert_norm2 = np.inf
+    Qz.change_scales(dealias)
+    q = 1
+    while pert_norm2 > tolerance_greens:
+        q = q + 1
+        solver2.newton_iteration()
+        pert_norm2 = sum(pert2.allreduce_data_norm('c',2) for pert2 in solver2.perturbations)
 
-        # Initial guess
-        Q['g'] = -omega_b * (np.squeeze(z)-Lz)
+    Qz.change_scales(1)
+    Qz = Qz.allgather_data('g')[0]
 
-        # Solver
-        solver2 = problem2.build_solver(ncc_cutoff = ncc_cutoff_greens)
-        pert_norm2 = np.inf
-        Q.change_scales(dealias)
-        while pert_norm2 > tolerance_greens:
-                solver2.newton_iteration()
-                pert_norm2 = sum(pert.allreduce_data_norm('c', 2) for pert in solver2.perturbations)
+    ## Sturm-Liouville for G
+    G = (-1 / epsilon) * np.true_divide(1,Qz - Pz)
 
-        Qz = d3.Gradient(Q).evaluate()
-        Qz.change_scales(1)
-        Qz = Qz.allgather_data('g')[0]
+    del z,Pz,Qz,tau_1,dz,lift_basis,lift,problem,solver1,solver2,pert_norm2,pert_norm1
+    gc.collect()
 
-        Q.change_scales(1)
-        Qg = Q['g']
+    return G
 
-        V = [Decimal(str(value)).exp() for value in Qg]
-        Vz = [V[i]*Decimal(str(Qz[i])) for i in range(0,grid_points)]
-
-        ## Sturm-Liouville for G
-
-        C = [Decimal(1) / (U[i] * Vz[i] - V[i] * Uz[i]) for i in range(0, grid_points)]
-        G = np.array([C[i] * U[i] * V[i] * Decimal(-1 / epsilon) for i in range(0, grid_points)], dtype = np.float64)
-
-        del z,P,Q,tau_1,tau_2,dz,lift_basis,lift,problem1,problem2,solver1,solver2,pert_norm1,pert_norm2,Qz,Pz,Qg,Pg,U,V,Uz,Vz,C
-        gc.collect()
-
-        return G
 
 

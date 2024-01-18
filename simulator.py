@@ -32,9 +32,11 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     uself_complete = np.array(file['uself'])
 
 psi_complete,nconc_complete,uself_complete, q_complete, z= mgrf_2plate.mgrf_2plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
+print('MGRF_done')
+print('psi=' + str(psi_complete[0:5]))
+
 
 grandfe = energy_2plate.grandfe_mgrf_2plate(psi_complete,nconc_complete,uself_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
-print(grandfe)
 print(f'grandfe = {grandfe}')
 
 stop = timeit.default_timer()
@@ -45,6 +47,7 @@ if cb2_d != 0:
 else:
     file_name = str(round(cb1_d / pow(10, 3), 9)) + '_' + str(round(cb2_d / pow(10, 3), 5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0] / pow(10, -10), 2)) + '_' + str(round(rad_ions_d[1] / pow(10, -10), 2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 
+    
 ## Writing everything in SI units
 with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
 
