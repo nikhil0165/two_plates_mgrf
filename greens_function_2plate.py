@@ -132,12 +132,6 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon): # function for \hat{G}
     ## Sturm-Liouville for G
     G = (-1 / epsilon) * np.true_divide(1,Qz - Pz)
 
-    if np.any(np.isnan(Pz)):
-        print("The Pz array contains at least one 'nan' for s= " + str(s))
-
-    if np.any(np.isnan(np.array(Qz,dtype = np.float64))):
-        print("The Qz array contains at least one 'nan' for s= " + str(s))
-
     del z,Pz,Qz,tau_1,dz,lift_basis,lift,problem,solver1,solver2,pert_norm2,pert_norm1
     gc.collect()
 
