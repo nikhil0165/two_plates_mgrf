@@ -10,9 +10,6 @@ def nconc_pb(psi, valency, n_bulk):
 
 # function to calculate num and coeffs for mgrf_2plate use
 def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols):
-    nodes=len(psi)
-    n_profile = np.zeros((nodes,len(valency)))
-    coeffs = np.zeros((nodes,len(valency)))
     if equal_vols:
         A = n_bulk* np.exp(-np.array(valency) * psi[:,np.newaxis] - (uself - uself_bulk) + vol_ions * eta_bulk)
         coeffs = valency * n_bulk* np.exp(-(uself - uself_bulk) + vol_ions * eta_bulk)
@@ -48,7 +45,7 @@ def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions
             denom = 1 + np.sum(A * vol_ions, axis=1)
             n_profile = np.true_divide(A, denom[:,np.newaxis])
         else:
-            n_profile = n_bulk * np.exp(-np.array(valency)*psi[:,np.newaxis] - (uself - uself_bulk) - vol_ions * (eta_profile[:,np.newaxis] - eta_bulk))
+            n_profile = n_bulk * np.exp(-np.array(valency)*psi[:,np.newaxis] - (uself_profile - uself_bulk) - vol_ions * (eta_profile[:,np.newaxis] - eta_bulk))
 
         convergence = np.true_divide(np.linalg.norm(n_profile - n_guess),np.linalg.norm(n_guess))
         n_guess = (num_ratio) * n_profile + (1-num_ratio) * n_guess
