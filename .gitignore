@@ -5,3 +5,6 @@ results*
 __pycache__
 *.sh*
 #*
+*_codes*
+*.png*
+*.idea*
