@@ -8,3 +8,4 @@ __pycache__
 *_codes*
 *.png*
 *.idea*
+*plots/*
