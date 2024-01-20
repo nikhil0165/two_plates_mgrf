@@ -22,7 +22,7 @@ def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_b
     return n_profile,coeffs
 
 # function to calculate concentration profile for given psi profile, n_initial is the initial guess
-def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions, vol_sol, domain, epsilon,equal_vols):  # n_initial is the initial guess
+def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions, vol_sol, domain, epsilon):  # n_initial is the initial guess
 
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
     eta_profile = calculate.eta_profile(n_initial,vol_ions,vol_sol)
@@ -34,7 +34,7 @@ def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions
 
     # initializing the variables
     uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency,domain, epsilon)
-    
+    equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
     # Iteration
     convergence = 1
     p = 0

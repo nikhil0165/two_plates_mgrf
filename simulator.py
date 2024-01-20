@@ -5,7 +5,7 @@ start = timeit.default_timer()
 
 
 # Argument parser to accept the input files
-parser = argparse.ArgumentParser(description='Code to calculate EDL structure using MGRF Theory with mean-field PB as an initial guess')
+parser = argparse.ArgumentParser(description='Code to calculate EDL structure using MGRF Theory with another MGRF solution as an initial guess')
 parser.add_argument('input_files', nargs='+', help='Paths to the input files for physical parameters')
 args = parser.parse_args()
 
