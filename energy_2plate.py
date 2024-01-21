@@ -34,7 +34,7 @@ def grandfe_mgrf_2plate(psi, n_profile, uself_profile,n_bulk, valency,rad_ions, 
     grandfe = grandfe + (1 / vol_sol) * np.sum(np.log(1 - vol_local) * dz)
 
     for k in range(0, len(taus)):
-            utau = utau + 0.5*weights[k]*selfe_2plate.uself_complete(sqrt(0.5*taus[k]+0.5)*n_profile,n_bulk,rad_ions, valency,domain, epsilon)
+            utau = utau + 0.5*weights[k]*selfe_2plate.uself_complete(sqrt(0.5*taus[k]+0.5)*n_profile,sqrt(0.5*taus[k]+0.5)*n_bulk,rad_ions, valency,domain, epsilon)
 
     utau_local = 0.5 * (utau[:-1] + utau[1:])
     grandfe = grandfe + np.sum(n_local * utau_local * dz[:, np.newaxis])
