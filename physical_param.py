@@ -9,12 +9,12 @@ valency2 = [1,-1] # valency of secondary salt
 born_radius = 2.0* pow(10, -10)
 rad_sol_d = born_radius
 
-domain_d = 8.0 # separation between two plates in Angstroms
-domain_in_d = 8.0 # separation between two plates of the initial guess
+domain_d = 20.0 # separation between two plates in Angstroms
+domain_in_d = 20.0 # separation between two plates of the initial guess
 
-sigma_f1_d = -0.1602# surface charge density of plate 1
+sigma_f1_d = -0.3204# surface charge density of plate 1
 sigma_f2_d = 0.1602#*ec/(pow(10,-20))# surface charge density of plate 2
-sigma_in1_d = -0.1602#*ec/(pow(10,-18)) # initial point for starting calculation in case of high surface charge densities
+sigma_in1_d = -0.3204#*ec/(pow(10,-18)) # initial point for starting calculation in case of high surface charge densities
 sigma_in2_d = 0.1602#*ec/(pow(10,-18)) # initial point for starting calculation in case of high surface charge densities
 
 print(f'sigma_in1_d = {sigma_in1_d}')

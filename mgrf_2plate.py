@@ -105,7 +105,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     
     q_profile = calculate.charge_density(n_profile, valency)
     res= calculate.res_2plate(psi_g,q_profile,bounds,sigma_1,sigma_2,epsilon)
-    print("Gauss's law residual for MGRF is is = " + str(res))
+    print("Gauss's law residual for MGRF = " + str(res))
 
     return psi_g, n_profile,uself_profile,q_profile,Z
 

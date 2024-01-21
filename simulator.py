@@ -30,6 +30,9 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     psi_complete = np.array(file['psi'])
     nconc_complete = np.array(file['nconc'])
     uself_complete = np.array(file['uself'])
+    grandfe = file.attrs['grandfe']
+
+print(f'grandfe = {grandfe}')
 
 psi_complete,nconc_complete,uself_complete, q_complete, z= mgrf_2plate.mgrf_2plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
 print('MGRF_done')
