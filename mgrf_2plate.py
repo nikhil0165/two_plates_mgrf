@@ -25,10 +25,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     uself_bulk = np.mean(selfe_bulk.uselfb_numerical(n_bulk_numerical, n_bulk, rad_ions, valency, domain,epsilon), axis=0)
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
 
-    vol_diff = np.abs(vol_ions - vol_sol)
-    equal_vols = np.all(vol_diff < vol_sol * 1e-5)
-
-
+    equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
     n_profile, coeffs = num_concn.nconc_mgrf(psi_g, uself_profile, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk, equal_vols)
 
     Z = None
