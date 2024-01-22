@@ -6,8 +6,9 @@ cb1_d = 0.1* pow(10, 3)# prinamry salt bulk concentration
 cb2_d = 0*pow(10,3)# secondary salt bulk concentration
 valency1 = [2,-1] # valency of primary salt
 valency2 = [1,-1] # valency of secondary salt
-born_radius = 2.0* pow(10, -10)
-rad_sol_d = born_radius
+born_radius1 = 2.0* pow(10, -10)
+born_radius2 = 2.0*pow(10,-10)
+rad_sol_d = max(born_radius1,born_radius2)
 
 domain_d = 20.0 # separation between two plates in Angstroms
 domain_in_d = 20.0 # separation between two plates of the initial guess
@@ -16,7 +17,8 @@ sigma_f1_d = -0.3204# surface charge density of plate 1
 sigma_f2_d = 0.1602#*ec/(pow(10,-20))# surface charge density of plate 2
 sigma_in1_d = -0.3204#*ec/(pow(10,-18)) # initial point for starting calculation in case of high surface charge densities
 sigma_in2_d = 0.1602#*ec/(pow(10,-18)) # initial point for starting calculation in case of high surface charge densities
-
+print(f'cb1_d = {cb1_d/pow(10,3)}')
+print(f'cb2_d = {cb2_d/pow(10,3)}')
 print(f'sigma_in1_d = {sigma_in1_d}')
 print(f'sigma_in2_d = {sigma_in2_d}')
 print(f'sigma_f1_d = {sigma_f1_d}')
@@ -28,11 +30,11 @@ vol_sol_d = 4/3*pi*pow(rad_sol_d,3)# volume of solvent molecule assuming its a s
 
 if cb2_d == 0:
     valency = np.array(valency1)
-    rad_ions_d = np.array([born_radius, born_radius])
+    rad_ions_d = np.array([born_radius1, born_radius2])
     vol_ions_d = np.array([vol_sol_d,vol_sol_d])
 else:
     valency = np.hstack((valency1,valency2))
-    rad_ions_d = np.array([born_radius, born_radius,born_radius,born_radius])# rad of ions
+    rad_ions_d = np.array([born_radius1, born_radius2,born_radius1,born_radius2])# rad of ions
     vol_ions_d = np.array([vol_sol_d,vol_sol_d,vol_sol_d,vol_sol_d])
 
 
