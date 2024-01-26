@@ -85,7 +85,9 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
 
         psi.change_scales(1)
         psi_g = psi['g']
-
+        #print('inner loop done')
+        if (np.any(np.isnan(psi_g))):
+            print('nan in psi')
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
         uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency, domain,epsilon)
 
@@ -107,5 +109,5 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     res= calculate.res_2plate(psi_g,q_profile,bounds,sigma_1,sigma_2,epsilon)
     print("Gauss's law residual for MGRF = " + str(res))
 
-    return psi_g, n_profile,uself_profile,q_profile,Z
+    return psi_g, n_profile,uself_profile,q_profile,Z, res
 
