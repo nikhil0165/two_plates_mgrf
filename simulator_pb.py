@@ -70,6 +70,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['dealias'] = dealias
     file.attrs['ncc_cutoff_pb'] = ncc_cutoff_pb
     file.attrs['ncc_cutoff_mgrf'] = ncc_cutoff_mgrf
+    file.attrs['ncc_cutoff_greens'] = ncc_cutoff_greens
     file.attrs['num_ratio'] = num_ratio
     file.attrs['selfe_ratio'] = selfe_ratio
     file.attrs['eta_ratio'] = eta_ratio

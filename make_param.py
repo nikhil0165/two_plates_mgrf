@@ -6,7 +6,7 @@ import sys
 
 # Define your numpy array with 'domain' values
 param_pattern = r'domain_d\s*=\s*([\d.]+)'
-domain_values = np.hstack((np.arange(26,42,2),np.arange(44,64,4),np.arange(64,90,4)))
+domain_values = np.arange(24.0,51.0,1.0)
 
 # Input and output file paths
 slurm_param_file =str(sys.argv[1])
