@@ -1,6 +1,7 @@
 import mgrf_2plate
 from numerical_param import *
 import energy_2plate
+import calculate
 start = timeit.default_timer()
 
 
@@ -32,14 +33,20 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     uself_complete = np.array(file['uself'])
     grandfe = file.attrs['grandfe']
 
-print(f'grandfe = {grandfe}')
+print(grandfe)
 
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_2plate.mgrf_2plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
+psi_complete, nconc_complete = calculate.interpolator(psi_complete,nconc_complete,(0,domain),N_grid)                                                                                                       
+
+print(len(psi_complete))
+print(len(nconc_complete))
+
+
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_2plate.mgrf_2plate(0.1*psi_complete,0.1*nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
 print('MGRF_done')
 print('psi=' + str(psi_complete[0:5]))
 
 
-grandfe = energy_2plate.grandfe_mgrf_2plate(psi_complete,nconc_complete,uself_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
+grandfe = 0#energy_2plate.grandfe_mgrf_2plate(psi_complete,nconc_complete,uself_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
 print(f'grandfe = {grandfe}')
 
 stop = timeit.default_timer()

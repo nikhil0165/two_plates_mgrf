@@ -2,20 +2,20 @@ from packages import *
 
 ## Global Input Variables, All quantities are in SI unit _d means dimensional
 
-cb1_d = 0.1 # prinamry salt bulk concentration in M
+cb1_d = 0.0001 # prinamry salt bulk concentration in M
 cb2_d = 0.0 # secondary salt bulk concentration in M
-valency1 = [2,-1] # valency of primary salt
+valency1 = [4,-1] # valency of primary salt
 valency2 = [1,-1] # valency of secondary salt
-born_radius1 = 1.6# radius of cation in Angstroms
+born_radius1 = 2.5# radius of cation in Angstroms
 born_radius2 = 1.5 # radius of anion in Angstroms
 rad_sol_d = max(born_radius1,born_radius2)
 
-domain_d = 20.0 # separation between two plates in Angstroms
-domain_in_d = domain_d # separation between two plates of the initial guess
+domain_d = 40.0 # separation between two plates in Angstroms
+domain_in_d = 40.0 # separation between two plates of the initial guess
 
 sigma_f1_d = -0.3204 # surface charge density of plate 1
 sigma_f2_d = 0.1602 # surface charge density of plate 2
-sigma_in1_d = -0.3204 #initial point for starting calculation in case of high surface charge densities
+sigma_in1_d = -0.25 #initial point for starting calculation in case of high surface charge densities
 sigma_in2_d = 0.1602 # initial point for starting calculation in case of high surface charge densities
 
 print(f'cb1_d = {cb1_d}')
