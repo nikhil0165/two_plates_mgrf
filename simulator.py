@@ -46,7 +46,7 @@ print('MGRF_done')
 print('psi=' + str(psi_complete[0:5]))
 
 
-grandfe = 0#energy_2plate.grandfe_mgrf_2plate(psi_complete,nconc_complete,uself_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
+grandfe = energy_2plate.grandfe_mgrf_2plate(psi_complete,nconc_complete,uself_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
 print(f'grandfe = {grandfe}')
 
 stop = timeit.default_timer()
