@@ -21,7 +21,7 @@ variables = {name: value for name, value in input_physical.__dict__.items() if n
 
 if cb2_d != 0:
     file_dir =os.getcwd() + '/results-mixture' + str(abs(valency[0]))+ '_' + str(abs(valency[1])) + '_' + str(abs(valency[2]))+ '_' + str(abs(valency[3]))
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d, 5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[0],2))+ '_' + str(round(rad_ions_d[1],2))+ '_' + str(round(rad_ions_d[2],2))+ '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d, 5))
 else:
     file_dir = os.getcwd() + '/results' + str(abs(valency[0]))+ '_' + str(abs(valency[1]))
     file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d, 5))
@@ -53,10 +53,11 @@ stop = timeit.default_timer()
 
 print('Time: ', stop - start)
 if cb2_d != 0:
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2))+ '_' + str(round(rad_ions_d[1],2))+ '_' + str(round(rad_ions_d[2],2))+ '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 else:
     file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 
+    
     
 ## Writing everything in SI units
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
