@@ -40,6 +40,22 @@ def kappa_profile(n_profile,valency,  epsilon): #screening factor for all positi
     kappa = np.apply_along_axis(kappa_loc,1,n_profile,valency,epsilon)
     return kappa
 
+def profile_extender(psi_profile,n_profile,uself_profile, z,dist_exc,N_exc):
+    slope1 = (psi_profile[1]-psi_profile[0])/(z[1] - z[0])
+    slope2 = (psi_profile[-1]-psi_profile[-2])/(z[-1] - z[-2])
+
+    z_ext1 = np.linspace(0,dist_exc,N_exc,endpoint=False)
+    z_ext2 = np.flip(np.linspace(z[-1] + 2*dist_exc,z[-1] + dist_exc,N_exc,endpoint = False))
+    psi_extend1 = slope1 * z_ext1 + psi_profile[0] - slope1 * dist_exc
+    psi_extend2 = psi_profile[-1] +slope2*(z_ext2-(z[-1] + dist_exc))
+
+    n_profile = np.concatenate((np.zeros((N_exc,len(n_profile[0,:]))), n_profile), axis=0)
+    n_profile = np.concatenate((n_profile,np.zeros((N_exc,len(n_profile[0,:])))), axis=0)
+
+    uself_profile = np.concatenate((np.zeros((N_exc,len(n_profile[0,:]))),uself_profile),axis = 0)
+    uself_profile = np.concatenate((uself_profile,np.zeros((N_exc,len(n_profile[0,:])))),axis = 0)
+    return np.hstack((psi_extend1,psi_profile,psi_extend2)), n_profile,uself_profile,np.hstack((z_ext1,z+dist_exc))
+
 def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to change grid points of psi and nconc fields                                                                                     
     grid_points = len(psi_complete)
     coords = d3.CartesianCoordinates('z')

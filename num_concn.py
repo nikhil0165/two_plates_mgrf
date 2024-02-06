@@ -22,18 +22,17 @@ def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_b
     return n_profile,coeffs
 
 # function to calculate concentration profile for given psi profile, n_initial is the initial guess
-def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions, vol_sol, domain, epsilon):  # n_initial is the initial guess
+def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions, vol_sol, domain,epsilon_s,epsilon_p):  # n_initial is the initial guess
 
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
     eta_profile = calculate.eta_profile(n_initial,vol_ions,vol_sol)
-    nodes = len(psi)
 
     # profile variables
     n_profile = np.copy(n_initial)
     n_guess = np.copy(n_initial)
 
     # initializing the variables
-    uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency,domain, epsilon)
+    uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency,domain,epsilon_s,epsilon_p)
     equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
     # Iteration
     convergence = 1
@@ -49,7 +48,7 @@ def nconc_complete(psi, n_initial,uself_bulk,n_bulk, valency, rad_ions, vol_ions
 
         convergence = np.true_divide(np.linalg.norm(n_profile - n_guess),np.linalg.norm(n_guess))
         n_guess = (num_ratio) * n_profile + (1-num_ratio) * n_guess
-        uself_profile = selfe_2plate.uself_complete(n_guess,n_bulk, rad_ions, valency, domain,epsilon)
+        uself_profile = selfe_2plate.uself_complete(n_guess,n_bulk, rad_ions, valency, domain,epsilon_s,epsilon_p)
         eta_profile = calculate.eta_profile(n_guess,vol_ions,vol_sol)
         if p%10==0:
             print('num='+str(convergence))

@@ -54,7 +54,7 @@ def Gcap_free(grid_points, s, domain,epsilon): # function for \hat{Go}
     return G
 
 
-def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon): # function for \hat{G}
+def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): # function for \hat{G}
 
     grid_points = len(n_profile)
     bounds = (0,domain)
@@ -72,8 +72,10 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon): # function for \hat{G}
     lift = lambda A,n: d3.Lift(A,lift_basis,n)
 
     omega_sqr = dist.Field(bases = zbasis)
-    omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_profile,valency,epsilon)
-    omega_b = np.sqrt(s * s + calculate.kappa_sqr(n_bulk,valency,epsilon))
+    omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_profile,valency,epsilon_s)
+    omega_b = np.sqrt(s * s + calculate.kappa_sqr(n_bulk,valency,epsilon_s))
+    Pzo = s * np.tanh(np.arctanh(epsilon_p/epsilon_s) + s * dist_exc)
+    Qzo = -s * np.tanh(np.arctanh(epsilon_p/epsilon_s) + s * dist_exc)
 
     # Fields for G(Pz or log(U))
     Pz = dist.Field(name = 'Pz',bases = zbasis)
@@ -84,10 +86,10 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon): # function for \hat{G}
     problem.add_equation("-dz(Pz) + omega_sqr + lift(tau_1,-1) = Pz**2")
 
     # Boundary conditions for Pz
-    problem.add_equation("Pz(z=0) = s")
+    problem.add_equation("Pz(z=0) = Pzo")
 
     # Initial guess for Pz
-    Pz['g'] = s
+    Pz['g'] = Pzo
 
     # Solver
     solver1 = problem.build_solver(ncc_cutoff = ncc_cutoff_greens)
@@ -111,10 +113,10 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon): # function for \hat{G}
     problem1.add_equation("-dz(Qz) + omega_sqr + lift(tau_1,-1) = Qz**2")
 
     # Boundary conditions for Qz
-    problem1.add_equation("Qz(z=Lz) = -s")
+    problem1.add_equation("Qz(z=Lz) = Qzo")
 
     # Initial guess for Qz
-    Qz['g'] = -s
+    Qz['g'] = Qzo
 
     # Solver
     solver2 = problem1.build_solver(ncc_cutoff = ncc_cutoff_greens)
@@ -130,7 +132,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon): # function for \hat{G}
     Qz = Qz['g']
 
     ## Sturm-Liouville for G
-    G = (-1 / epsilon) * np.true_divide(1,Qz - Pz)
+    G = (-1 / epsilon_s) * np.true_divide(1,Qz - Pz)
 
     del z,Pz,Qz,tau_1,dz,lift_basis,lift,problem,solver1,solver2,pert_norm2,pert_norm1
     gc.collect()

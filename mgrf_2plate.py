@@ -5,24 +5,24 @@ import selfe_2plate
 import selfe_bulk
 from numerical_param import*
 
-def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_1,sigma_2, domain, epsilon):  # psi_guess from mean-field PB acts as a initial guess
+def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_1,sigma_2, domain, epsilon_s,epsilon_p):  # psi_guess from mean-field PB acts as a initial guess
 
     grid_points = len(psi_guess)
     bounds = (0,domain)
     Lz = bounds[1]
-    slope1 = -sigma_1/epsilon
-    slope2 = -sigma_2/epsilon
+    slope1 = -sigma_1/epsilon_s
+    slope2 = -sigma_2/epsilon_s
 
     psi_g = np.copy(psi_guess)
     eta_profile=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
-    uself_profile = selfe_2plate.uself_complete(nconc_guess,n_bulk,rad_ions,valency,domain,epsilon)
+    uself_profile = selfe_2plate.uself_complete(nconc_guess,n_bulk,rad_ions,valency,domain,epsilon_s,epsilon_p)
     uself= np.copy(uself_profile)
 
     print('selfe_done')
 
     # Bulk properties
     n_bulk_numerical = np.multiply(np.ones((grid_points,len(valency))),n_bulk)
-    uself_bulk = np.mean(selfe_bulk.uselfb_numerical(n_bulk_numerical, n_bulk, rad_ions, valency, domain,epsilon), axis=0)
+    uself_bulk = np.mean(selfe_bulk.uselfb_numerical(n_bulk_numerical, n_bulk, rad_ions, valency, domain,epsilon_s), axis=0)
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
 
     equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
@@ -53,7 +53,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         c0 = dist.Field(bases = zbasis)
         c1 = dist.Field(bases = zbasis)
         n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols)
-        coeffs = coeffs/epsilon
+        coeffs = coeffs/epsilon_s
 
         # lambda function for RHS, dedalus understands lambda functions can differentiate it for newton iteration
 
@@ -100,7 +100,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         if (np.any(np.isnan(psi_g))):
             print('nan in psi')
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
-        uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency, domain,epsilon)
+        uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency, domain,epsilon_s,epsilon_p)
 
         convergence_tot = np.true_divide(np.linalg.norm(uself_profile - uself),np.linalg.norm(uself))
 
@@ -114,11 +114,13 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         if p%10==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
-#    n_profile,uself_profile = num_concn.nconc_complete(psi_g,n_profile,uself_bulk,n_bulk,valency,rad_ions,vol_ions,vol_sol,domain,epsilon,equal_vols)
+#    n_profile,uself_profile = num_concn.nconc_complete(psi_g,n_profile,uself_bulk,n_bulk,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s,epsilon_p,equal_vols)
     
     q_profile = calculate.charge_density(n_profile, valency)
-    res= calculate.res_2plate(psi_g,q_profile,bounds,sigma_1,sigma_2,epsilon)
+    res= calculate.res_2plate(psi_g,q_profile,bounds,sigma_1,sigma_2,epsilon_s)
     print("Gauss's law residual for MGRF = " + str(res))
+
+    psi_g,n_profile,uself_profile,Z = calculate.profile_extender(psi_g,n_profile,uself_profile,Z,np.max(rad_ions),N_exc)
 
     return psi_g, n_profile,uself_profile,q_profile,Z, res
 
