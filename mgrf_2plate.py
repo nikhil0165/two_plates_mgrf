@@ -14,6 +14,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     slope2 = -sigma_2/epsilon
 
     psi_g = np.copy(psi_guess)
+    n_profile= nconc_guess
     eta_profile=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
     uself_profile = selfe_2plate.uself_complete(nconc_guess,n_bulk,rad_ions,valency,domain,epsilon)
     uself= np.copy(uself_profile)
@@ -104,7 +105,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
 #    n_profile,uself_profile = num_concn.nconc_complete(psi_g,n_profile,uself_bulk,n_bulk,valency,rad_ions,vol_ions,vol_sol,domain,epsilon,equal_vols)
-    
+#
     q_profile = calculate.charge_density(n_profile, valency)
     res= calculate.res_2plate(psi_g,q_profile,bounds,sigma_1,sigma_2,epsilon)
     print("Gauss's law residual for MGRF = " + str(res))

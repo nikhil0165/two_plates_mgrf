@@ -20,9 +20,9 @@ import gc
 ## For parallelising self-energy calculations
 
 import concurrent.futures
-
 import re
 import subprocess
+
 ## timing, warnings, logging
 
 import timeit

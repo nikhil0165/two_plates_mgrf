@@ -1,3 +1,5 @@
+import numpy as np
+
 from packages import *
 from numerical_param import*
 
@@ -73,6 +75,15 @@ def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to cha
 
     return psi['g'], nconc
 
+def psi_extender(psi_profile,r_sol, z_lg):
+    slope1 = (psi_profile[1]-psi_profile[0])/(z_lg[1] - z_lg[0])
+    slope2 = (psi_profile[-1]-psi_profile[-2])/(z_lg[-1] - z_lg[-2])
+    z_ext1 = np.linspace(0,r_sol,10, endpoint=False)
+    z_ext2 = np.linspace(z_lg[-1] + r_sol,z_lg[-1] + 2*r_sol,10)[1:]
+    psi_extend1 = slope1*z_ext1 + psi_profile[0] - slope1*r_sol
+    psi_extend2 = psi_profile[-1] +slope2*(z_ext2-(z_lg[-1] + r_sol))
+    return np.hstack((z_ext1,(z_lg + r_sol),z_ext2)), np.hstack((psi_extend1,psi_profile,psi_extend2))
+
 def res_2plate(psi_profile,q_profile,bounds,sigma1,sigma2,epsilon): # calculate the residual of gauss law
 
     nodes = len(psi_profile)
@@ -96,6 +107,9 @@ def res_2plate(psi_profile,q_profile,bounds,sigma1,sigma2,epsilon): # calculate 
     res[0] = slope_0 + sigma1/epsilon
     res[nodes-1] = slope_end -sigma2/epsilon
     res[1:nodes-1] = lap_psi['g'][1:nodes-1] + q_profile[1:nodes-1]/epsilon
+    print(np.argmax(np.abs(res)))
+    print(res[np.argmax(np.abs(res))])
+    print(res[np.argmax(np.abs(res))+1])
     return np.max(np.abs(res))
 
 

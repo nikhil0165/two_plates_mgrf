@@ -1,6 +1,7 @@
 import mgrf_2plate
 from numerical_param import *
 import energy_2plate
+from physical_param import *
 start = timeit.default_timer()
 
 
@@ -60,10 +61,10 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
     file.attrs['epsilon_p'] = epsilonr_s_d
-    file.attrs['cb1'] = cb1_d * 0.001
-    file.attrs['cb2'] = cb2_d*0.001
+    file.attrs['cb1'] = cb1_d
+    file.attrs['cb2'] = cb2_d
     file.attrs['domain'] = domain_d
-    
+
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
     file.attrs['N_grid'] = N_grid
