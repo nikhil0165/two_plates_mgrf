@@ -92,6 +92,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         while pert_norm > tolerance_pb:
             solver.newton_iteration()
             pert_norm = sum(pert.allreduce_data_norm('c', 2) for pert in solver.perturbations)
+            #print(pert_norm)
             s  =s +1
 
         psi.change_scales(1)
@@ -99,6 +100,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         #print('inner loop done')
         if (np.any(np.isnan(psi_g))):
             print('nan in psi')
+            
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
         uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency, domain,epsilon)
 

@@ -42,7 +42,7 @@ if cb2_d != 0:
     file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 else:
     output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-    file_name = str(round(cb1_d, 9)) + '_' + str(round(cb2_d, 5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0], 2)) + '_' + str(round(rad_ions_d[2], 2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
+    file_name = str(round(cb1_d, 9)) + '_' + str(round(cb2_d, 5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0], 2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 
 # Create the output directory if it doesn't exist
 

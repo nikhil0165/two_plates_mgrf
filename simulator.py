@@ -35,13 +35,12 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
 
 print(grandfe)
 
-psi_complete, nconc_complete = calculate.interpolator(psi_complete,nconc_complete,(0,domain),N_grid)                                                                                                       
+# psi_complete, nconc_complete = calculate.interpolator(psi_complete,nconc_complete,(0,domain),N_grid)                                                                                                       
+# print(len(psi_complete))
+# print(len(nconc_complete))
 
-print(len(psi_complete))
-print(len(nconc_complete))
 
-
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_2plate.mgrf_2plate(0.1*psi_complete,0.1*nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_2plate.mgrf_2plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
 print('MGRF_done')
 print('psi=' + str(psi_complete[0:5]))
 
@@ -55,7 +54,7 @@ print('Time: ', stop - start)
 if cb2_d != 0:
     file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2))+ '_' + str(round(rad_ions_d[1],2))+ '_' + str(round(rad_ions_d[2],2))+ '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 else:
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))# + '_' +str(N_grid)
 
     
     
