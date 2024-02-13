@@ -21,7 +21,7 @@ def uself_short(n_bulk_profile,rad_ions,valency, epsilon): #short-range self-ene
 
 def uself_component_bulk(n_bulk_profile,n_bulk,valency,quad_point,domain,epsilon): # integration component as per legendre-gauss quadrature
     G_full= greens_function_bulk.Gcap_full(n_bulk_profile,n_bulk,valency,quad_point[0],domain,epsilon)
-    G_free = greens_function_bulk.Gcap_free(len(n_bulk_profile),quad_point[0],domain,epsilon)
+    G_free = np.ones(len(n_bulk_profile))*(1/(2*epsilon*quad_point[0]))#greens_function_bulk.Gcap_free(len(n_bulk_profile),quad_point[0],domain,epsilon)
     G_component = (G_full-G_free)
     u_component = quad_point[1] * (np.power(valency, 2) / (4 * np.pi)) * G_component[:,np.newaxis]
     return u_component
