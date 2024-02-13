@@ -60,12 +60,23 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
 
         c0['g'] = np.squeeze(coeffs[:, 0])
         c1['g'] = np.squeeze(coeffs[:, 1])
-        boltz1 = lambda psi:  np.exp(-valency[0] * psi)
-        boltz2 = lambda psi: np.exp(-valency[1] * psi)
+        boltz0 = lambda psi: np.exp(-valency[0] * psi)
+        boltz1 = lambda psi: np.exp(-valency[1] * psi)
+
+        if len(valency) == 4:
+            c2 = dist.Field(bases = zbasis)
+            c3 = dist.Field(bases = zbasis)
+            boltz2 = lambda psi: np.exp(-valency[2] * psi)
+            boltz3 = lambda psi: np.exp(-valency[3] * psi)
 
         # PDE setup
         problem = d3.NLBVP([psi, tau_1, tau_2], namespace=locals())
-        problem.add_equation("-lap(psi) + lift(tau_1,-1) + lift(tau_2,-2) = c0*boltz1(psi) + c1*boltz2(psi)")
+        if len(valency)==2:
+            problem.add_equation("-lap(psi) + lift(tau_1,-1) + lift(tau_2,-2) = c0*boltz0(psi) + c1*boltz1(psi)")
+        if len(valency)==4:
+            c2['g'] = np.squeeze(coeffs[:,2])
+            c3['g'] = np.squeeze(coeffs[:,3])
+            problem.add_equation("-lap(psi) + lift(tau_1,-1) + lift(tau_2,-2) = c0*boltz0(psi) + c1*boltz1(psi) + c2*boltz2(psi) + c3*boltz3(psi)")
 
         # Boundary conditions
         problem.add_equation("dz(psi)(z=0) = slope1")
@@ -82,6 +93,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         while pert_norm > tolerance_pb:
             solver.newton_iteration()
             pert_norm = sum(pert.allreduce_data_norm('c', 2) for pert in solver.perturbations)
+            #print(pert_norm)
             s  =s +1
 
         psi.change_scales(1)
@@ -89,6 +101,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         #print('inner loop done')
         if (np.any(np.isnan(psi_g))):
             print('nan in psi')
+            
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
         uself_profile = selfe_2plate.uself_complete(n_profile, n_bulk,rad_ions, valency, domain,epsilon)
 
@@ -98,7 +111,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         eta_profile = eta_ratio*calculate.eta_profile(n_profile,vol_ions,vol_sol) +(1-eta_ratio)*eta_profile
 
         Z = np.squeeze(z)
-        del z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz1,boltz2
+        del z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz1,boltz0
         gc.collect()
         p = p+1
         if p%10==0:

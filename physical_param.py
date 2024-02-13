@@ -2,7 +2,11 @@ from packages import *
 
 ## Global Input Variables, All quantities are in SI unit _d means dimensional
 
+<<<<<<< HEAD
 cb1_d = 0.015 # prinamry salt bulk concentration in M
+=======
+cb1_d = 0.0001 # prinamry salt bulk concentration in M
+>>>>>>> 38035e4e3cbc6229b250b5686a828f34a1c56977
 cb2_d = 0.0 # secondary salt bulk concentration in M
 valency1 = [3,-1] # valency of primary salt
 valency2 = [1,-1] # valency of secondary salt
@@ -10,22 +14,17 @@ born_radius1 = 2.5# radius of cation in Angstroms
 born_radius2 = 1.5 # radius of anion in Angstroms
 rad_sol_d = max(born_radius1,born_radius2)
 
+<<<<<<< HEAD
 domain_d = 85.0 # separation between two plates in Angstroms
+=======
+domain_d = 40.0 # separation between two plates in Angstroms
+>>>>>>> 38035e4e3cbc6229b250b5686a828f34a1c56977
 domain_in_d = domain_d # separation between two plates of the initial guess
 
 sigma_f1_d = -0.3204 # surface charge density of plate 1
 sigma_f2_d = 0.1602 # surface charge density of plate 2s
 sigma_in1_d = -0.3204 #initial point for starting calculation in case of high surface charge densities
 sigma_in2_d = 0.1602 # initial point for starting calculation in case of high surface charge densities
-
-print(f'cb1_d = {cb1_d}')
-print(f'cb2_d = {cb2_d}')
-print(f'sigma_in1_d = {sigma_in1_d}')
-print(f'sigma_in2_d = {sigma_in2_d}')
-print(f'sigma_f1_d = {sigma_f1_d}')
-print(f'sigma_f2_d = {sigma_f2_d}')
-print(f'domain_in_d = {domain_in_d}')
-print(f'domain_d = {domain_d}')
 
 vol_sol_d = 4/3*pi*pow(rad_sol_d*pow(10, -10),3)# volume of solvent molecule assuming its a sphere
 
@@ -38,6 +37,15 @@ else:
     rad_ions_d = np.array([born_radius1, born_radius2,born_radius2,born_radius2])# rad of ions
     vol_ions_d = np.array([vol_sol_d,vol_sol_d,vol_sol_d,vol_sol_d])
 
+print(f'cb1_d = {cb1_d}')
+print(f'cb2_d = {cb2_d}')
+print(f'sigma_in1_d = {sigma_in1_d}')
+print(f'sigma_in2_d = {sigma_in2_d}')
+print(f'sigma_f1_d = {sigma_f1_d}')
+print(f'sigma_f2_d = {sigma_f2_d}')
+print(f'domain_in_d = {domain_in_d}')
+print(f'domain_d = {domain_d}')
+print(f'valency = {valency}')
 
 ## Physical constants
 

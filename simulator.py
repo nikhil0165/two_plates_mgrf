@@ -1,7 +1,11 @@
 import mgrf_2plate
 from numerical_param import *
 import energy_2plate
+<<<<<<< HEAD
 from physical_param import *
+=======
+import calculate
+>>>>>>> 38035e4e3cbc6229b250b5686a828f34a1c56977
 start = timeit.default_timer()
 
 
@@ -20,11 +24,11 @@ variables = {name: value for name, value in input_physical.__dict__.items() if n
 (locals().update(variables))
 
 if cb2_d != 0:
-    file_dir =os.getcwd() + '/results-mixture' + str(abs(valency[0]))+ '_' + str(abs(valency[1])) + '-' + str(abs(valency[2]))+ '_' + str(abs(valency[3]))
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d, 5))
+    file_dir =os.getcwd() + '/results-mixture' + str(abs(valency[0]))+ '_' + str(abs(valency[1])) + '_' + str(abs(valency[2]))+ '_' + str(abs(valency[3]))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[0],2))+ '_' + str(round(rad_ions_d[1],2))+ '_' + str(round(rad_ions_d[2],2))+ '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d, 5))
 else:
     file_dir = os.getcwd() + '/results' + str(abs(valency[0]))+ '_' + str(abs(valency[1]))
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d,5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_in_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_in1_d, 5)) + '_' + str(round(sigma_in2_d, 5))
 
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -33,9 +37,14 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     uself_complete = np.array(file['uself'])
     grandfe = file.attrs['grandfe']
 
-print(f'grandfe = {grandfe}')
+print(grandfe)
 
-psi_complete,nconc_complete,uself_complete, q_complete, z,res= mgrf_2plate.mgrf_2plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
+# psi_complete, nconc_complete = calculate.interpolator(psi_complete,nconc_complete,(0,domain),N_grid)                                                                                                       
+# print(len(psi_complete))
+# print(len(nconc_complete))
+
+
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_2plate.mgrf_2plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s)
 print('MGRF_done')
 print('psi=' + str(psi_complete[0:5]))
 
@@ -47,10 +56,11 @@ stop = timeit.default_timer()
 
 print('Time: ', stop - start)
 if cb2_d != 0:
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2))+ '_' + str(round(rad_ions_d[1],2))+ '_' + str(round(rad_ions_d[2],2))+ '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
 else:
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5))# + '_' +str(N_grid)
 
+    
     
 ## Writing everything in SI units
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
@@ -106,5 +116,3 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['grandfe'] = grandfe # nondimensional
     file.attrs['grandfe_d'] = grandfe*(1/beta) # SI units
     file.attrs['residual'] = res # SI units
-
-
