@@ -27,6 +27,7 @@ variables = {name: value for name, value in input_physical.__dict__.items() if n
 psi_profile,n_profile,z = dh_2plate.dh_2plate(n_bulk,valency,sigma_f1,sigma_f2,N_grid,domain,epsilon_s)
 print('DH_done')
 print(psi_profile[0:5])
+
 psi_profile, n_profile,z = pb_2plate.pb_2plate(psi_profile,n_bulk,valency,sigma_f1,sigma_f2,domain,epsilon_s)
 print('PB_done')
 print(psi_profile[0:5])
@@ -36,14 +37,11 @@ psi_profile,n_profile,uself_profile, q_complete, z, res= mgrf_2plate.mgrf_2plate
 print('MGRF_done')
 print(psi_profile[0:5])
 
+time = timeit.default_timer() - start
+print(f'time = {time}')
 
 grandfe = energy_2plate.grandfe_mgrf_2plate(psi_profile,n_profile,uself_profile,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
 print(f'grandfe = {grandfe}')
-
-
-stop = timeit.default_timer()
-print('Time: ', stop - start)
-
 
 if cb2_d != 0:
     output_dir = os.getcwd() + '/results-mixture' + str(abs(valency[0]))+ '_' + str(abs(valency[1])) + '_' + str(abs(valency[2]))+ '_' + str(abs(valency[3]))
@@ -87,6 +85,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['tolerance_pb'] = tolerance_pb
     file.attrs['tolerance_num'] = tolerance_num
     file.attrs['tolerance_greens'] = tolerance_greens
+    file.attrs['time'] = time
 
     # Storing parameter arrays
     file.create_dataset('valency', data = valency)
