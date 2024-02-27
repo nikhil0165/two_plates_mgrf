@@ -2,6 +2,9 @@
 
 This is a Python package for solving the modified Gaussian renormalized fluctuation theory to get the electrical double layer structure between two uniformly charged plates. The code is based on the equations derived in the work of Agrawal and Wang, [Phys. Rev. Lett. 2022, 129, 228001](https://doi.org/10.1103/PhysRevLett.129.228001) and [J. Chem. Theory Comput. 2022, 18, 6271–6280](https://doi.org/10.1021/acs.jctc.2c00607) and is written on top of open-source spectral methods based differential equation solver [Dedalus](https://github.com/DedalusProject/dedalus), developed by [Burns et al., Phys. Rev. Res. 2020, 2 (2), 023068](https://doi.org/10.1103/PhysRevResearch.2.023068). The iteration scheme for solving the non-linear equations in this code is partially adapted from the work of [Xu and Maggs J. Comp. Phys. 275 (2014): 310-322.](https://doi.org/10.1016/j.jcp.2014.07.004), the complete scheme and the method to solve the correlation functions will be soon published as a research article. The code solves for Gaussian correlation functions for planar double layers in a parallel manner. Although the equations derived in the work of Agrawal and Wang account for spatially varying dielectric permittivities, the code in its current version is for systems with uniform dielectric permittivity. 
 
+This code can be used to reproduce the data presented in Nikhil R. Agrawal, Ravtej Kaur, Carlo Carraro, and Rui Wang [arXiv:2306.10137](https://doi.org/10.48550/arXiv.2306.10137)
+
+
 In the text that follows, the contents of various Python files are described.
 
 ## numerical_param.py
