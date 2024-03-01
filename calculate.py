@@ -37,42 +37,58 @@ def kappa_sqr_profile(n_profile,valency,epsilon): #square of screening factor fo
     return (I * (len(valency) / epsilon))
 
 def kappa_profile(n_profile,valency,  epsilon): #screening factor for all positions
+
     kappa = np.apply_along_axis(kappa_loc,1,n_profile,valency,epsilon)
     return kappa
 
-def profile_extender(psi_profile,n_profile,uself_profile, z,dist_exc,N_exc):
-    slope1 = (psi_profile[1]-psi_profile[0])/(z[1] - z[0])
-    slope2 = (psi_profile[-1]-psi_profile[-2])/(z[-1] - z[-2])
+def profile_extender(psi_profile,n_profile,uself_profile, bounds,dist_exc,N_exc):
+
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
+    zbasis = d3.Chebyshev(coords['z'],size = len(psi_profile),bounds = bounds,dealias = 3 / 2)
+
+    # Fields
+    z = np.squeeze(dist.local_grids(zbasis))
+    psi = dist.Field(name = 'psi',bases = zbasis)
+    psi['g'] = psi_profile
+    surface1_psi = psi(z = 0).evaluate()['g'][0]
+    surface2_psi = psi(z = bounds[1]).evaluate()['g'][0]
+
+    grad_psi = d3.Differentiate(psi,coords['z'])
+    slope1 = grad_psi(z = 0).evaluate()['g'][0]
+    slope2 = grad_psi(z = bounds[1]).evaluate()['g'][0]
+
 
     z_ext1 = np.linspace(0,dist_exc,N_exc,endpoint=False)
     z_ext2 = np.flip(np.linspace(z[-1] + 2*dist_exc,z[-1] + dist_exc,N_exc,endpoint = False))
-    psi_extend1 = slope1 * z_ext1 + psi_profile[0] - slope1 * dist_exc
-    psi_extend2 = psi_profile[-1] +slope2*(z_ext2-(z[-1] + dist_exc))
+    psi_extend1 = slope1 * z_ext1 + surface1_psi - slope1 * dist_exc
+    psi_extend2 = surface2_psi + slope2*(z_ext2-(z[-1] + dist_exc))
 
     n_profile = np.concatenate((np.zeros((N_exc,len(n_profile[0,:]))), n_profile), axis=0)
     n_profile = np.concatenate((n_profile,np.zeros((N_exc,len(n_profile[0,:])))), axis=0)
 
     uself_profile = np.concatenate((np.zeros((N_exc,len(n_profile[0,:]))),uself_profile),axis = 0)
     uself_profile = np.concatenate((uself_profile,np.zeros((N_exc,len(n_profile[0,:])))),axis = 0)
-    return np.hstack((psi_extend1,psi_profile,psi_extend2)), n_profile,uself_profile,np.hstack((z_ext1,z+dist_exc))
+    return np.hstack((psi_extend1,psi_profile,psi_extend2)), n_profile,uself_profile,np.hstack((z_ext1,z+dist_exc,z_ext2)), [surface1_psi,surface2_psi]
 
-def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to change grid points of psi and nconc fields                                                                                     
-    grid_points = len(psi_complete)
+def interpolator(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
+
+    grid_points = len(psi_profile)
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization                                                                                                      
     zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = bounds)
 
     # Fields                                                                                                                                                                                                
-    n_ions = len(nconc_complete[0,:])
+    n_ions = len(n_profile[0,:])
     nconc = np.zeros((new_grid,n_ions))
     psi = dist.Field(name = 'psi',bases = zbasis)
-    psi['g'] = psi_complete
+    psi['g'] = psi_profile
     psi.change_scales(new_grid/grid_points)
 
     nconc0 = dist.Field(name = 'nconc0',bases = zbasis)
     nconc1 = dist.Field(name = 'nconc1',bases = zbasis)
-    nconc0['g'] = nconc_complete[:,0]
-    nconc1['g'] = nconc_complete[:,1]
+    nconc0['g'] = n_profile[:,0]
+    nconc1['g'] = n_profile[:,1]
     nconc0.change_scales(new_grid/grid_points)
     nconc1.change_scales(new_grid/grid_points)
     nconc[:,0] = nconc0['g']
@@ -80,14 +96,14 @@ def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to cha
     if n_ions==4:
         nconc2 = dist.Field(name = 'nconc2',bases = zbasis)
         nconc3 = dist.Field(name = 'nconc3',bases = zbasis)
-        nconc2['g'] = nconc_complete[:,2]
-        nconc3['g'] = nconc_complete[:,3]
+        nconc2['g'] = n_profile[:,2]
+        nconc3['g'] = n_profile[:,3]
         nconc2.change_scales(new_grid/grid_points)
         nconc3.change_scales(new_grid/grid_points)
         nconc[:,2] = nconc2['g']
         nconc[:,3] = nconc3['g']
 
-    return psi['g'], nconc
+    return psi['g'], nconc,0
 
 def res_2plate(psi_profile,q_profile,bounds,sigma1,sigma2,epsilon): # calculate the residual of gauss law
 
@@ -105,12 +121,12 @@ def res_2plate(psi_profile,q_profile,bounds,sigma1,sigma2,epsilon): # calculate 
     lap_psi = d3.Laplacian(psi).evaluate()
     lap_psi.change_scales(1)
 
-    slope_0 = grad_psi(z = 0).evaluate()['g'][0]
-    slope_end = grad_psi(z = bounds[1]).evaluate()['g'][0]
+    slope1 = grad_psi(z = 0).evaluate()['g'][0]
+    slope2 = grad_psi(z = bounds[1]).evaluate()['g'][0]
     res = np.zeros(nodes)
     
-    res[0] = slope_0 + sigma1/epsilon
-    res[nodes-1] = slope_end -sigma2/epsilon
+    res[0] = slope1 + sigma1/epsilon
+    res[nodes-1] = slope2 -sigma2/epsilon
     res[1:nodes-1] = lap_psi['g'][1:nodes-1] + q_profile[1:nodes-1]/epsilon
     return np.max(np.abs(res))
 

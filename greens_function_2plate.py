@@ -46,13 +46,12 @@ def Gcap_free(grid_points, s, domain,epsilon): # function for \hat{Go}
     Qz = -Pz
 
     ## Sturm-Liouville for G
-    G = (-1 / epsilon) * np.true_divide(1,Qz - Pz)
+    G = (1 / epsilon) * np.true_divide(1,Pz - Qz)
 
     del z,Pz,Qz,tau_1,dz,lift_basis,lift,problem,solver0,pert_norm0
     gc.collect()
 
     return G
-
 
 def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): # function for \hat{G}
 
@@ -132,7 +131,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): #
     Qz = Qz['g']
 
     ## Sturm-Liouville for G
-    G = (-1 / epsilon_s) * np.true_divide(1,Qz - Pz)
+    G = (1 / epsilon_s) * np.true_divide(1,Pz - Qz)
 
     del z,Pz,Qz,tau_1,dz,lift_basis,lift,problem,solver1,solver2,pert_norm2,pert_norm1
     gc.collect()

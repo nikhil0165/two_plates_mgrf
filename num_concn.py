@@ -9,16 +9,16 @@ def nconc_pb(psi, valency, n_bulk):
     return n_bulk * np.exp(-np.array(valency) * psi[:,np.newaxis] )
 
 # function to calculate num and coeffs for mgrf_2plate use
-def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols):
+def nconc_mgrf(psi_profile,uself_profile,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols):
     if equal_vols:
-        A = n_bulk* np.exp(-np.array(valency) * psi[:,np.newaxis] - (uself - uself_bulk) + vol_ions * eta_bulk)
-        coeffs = valency * n_bulk* np.exp(-(uself - uself_bulk) + vol_ions * eta_bulk)
+        A = n_bulk* np.exp(-np.array(valency) * psi_profile[:,np.newaxis] - (uself_profile - uself_bulk) + vol_ions * eta_bulk)
+        coeffs = valency * n_bulk* np.exp(-(uself_profile - uself_bulk) + vol_ions * eta_bulk)
         denom = 1 + np.sum(A * vol_ions, axis=1)
         n_profile= np.true_divide(A,denom[:,np.newaxis])
         coeffs = np.true_divide(coeffs,denom[:,np.newaxis])
     else:
-        n_profile = n_bulk * np.exp(-np.array(valency)*psi[:,np.newaxis] - (uself - uself_bulk) - vol_ions * (eta_profile[:,np.newaxis] - eta_bulk))
-        coeffs = valency* n_bulk * np.exp(-(uself - uself_bulk) - vol_ions* (eta_profile[:,np.newaxis] - eta_bulk))
+        n_profile = n_bulk * np.exp(-np.array(valency) * psi_profile[:,np.newaxis] - (uself_profile - uself_bulk) - vol_ions * (eta_profile[:,np.newaxis] - eta_bulk))
+        coeffs = valency*n_bulk * np.exp(-(uself_profile - uself_bulk) - vol_ions * (eta_profile[:,np.newaxis] - eta_bulk))
     return n_profile,coeffs
 
 # function to calculate concentration profile for given psi profile, n_initial is the initial guess

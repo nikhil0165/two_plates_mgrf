@@ -41,6 +41,9 @@ def dh_2plate(n_bulk,valency,sigma_1,sigma_2,grid_points,domain,epsilon):
 
     n_profile = num_concn.nconc_pb(psi['g'],valency,n_bulk)
 
-    return psi['g'],n_profile,np.squeeze(z)
+    surface1_psi = psi(z = 0).evaluate()['g'][0]
+    surface2_psi = psi(z = bounds[1]).evaluate()['g'][0]
+
+    return psi['g'],n_profile,np.squeeze(z), [surface1_psi,surface2_psi]
 
 

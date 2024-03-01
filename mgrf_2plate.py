@@ -18,18 +18,20 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     eta_guess=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
 
 
-    print('selfe_done')
+    print('selfe done in the interface')
 
     # Bulk properties
     n_bulk_numerical = np.multiply(np.ones((grid_points,len(valency))),n_bulk)
     uself_bulk = np.mean(selfe_bulk.uselfb_numerical(n_bulk_numerical, n_bulk, rad_ions, valency, domain,epsilon_s), axis=0)
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
 
+    print('selfe done in the bulk')
+
     equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
     print(f'equal_vols = {equal_vols}')
 
     n_profile = None
-    Z = None
+
     # Solving the matrix
 
     convergence_tot = np.inf
@@ -53,7 +55,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         lift = lambda A, n: d3.Lift(A, lift_basis, n)
         c0 = dist.Field(bases = zbasis)
         c1 = dist.Field(bases = zbasis)
-        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g, uself_guess, eta_guess, uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols)
+        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,eta_bulk,equal_vols)
         coeffs = coeffs/epsilon_s
 
         # lambda function for RHS, dedalus understands lambda functions can differentiate it for newton iteration
@@ -101,7 +103,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
         if (np.any(np.isnan(psi_g))):
             print('nan in psi')
 
-        n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself_guess, eta_guess, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
+        n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,eta_bulk,equal_vols)
 
         convergence_tot = np.true_divide(np.linalg.norm(n_profile - nconc_guess),np.linalg.norm(nconc_guess))
 
@@ -126,7 +128,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     res= calculate.res_2plate(psi_g,q_profile,bounds,sigma_1,sigma_2,epsilon_s)
     print("Gauss's law residual for MGRF = " + str(res))
 
-    psi_g,n_profile,uself_profile,Z = calculate.profile_extender(psi_g,n_profile,uself_profile,Z,np.max(rad_ions),N_exc)
+    psi_g,n_profile,uself_profile,Z, surface_psi = calculate.profile_extender(psi_g,n_profile,uself_profile,bounds,np.max(rad_ions),N_exc)
 
-    return psi_g, n_profile,uself_profile,q_profile,Z, res
+    return psi_g, n_profile,uself_profile,q_profile,Z, res, surface_psi
 

@@ -51,6 +51,9 @@ def pb_2plate(psi_guess,n_bulk,valency, sigma_1,sigma_2, domain, epsilon):  # ps
         pert_norm = sum(pert.allreduce_data_norm('c', 2) for pert in solver.perturbations)
         print(pert_norm)
 
+
+    surface1_psi = psi(z = 0).evaluate()['g'][0]
+    surface2_psi = psi(z = bounds[1]).evaluate()['g'][0]
     psi.change_scales(1)
 
     n_profile = num_concn.nconc_pb(psi['g'],valency,n_bulk)
@@ -59,5 +62,5 @@ def pb_2plate(psi_guess,n_bulk,valency, sigma_1,sigma_2, domain, epsilon):  # ps
     res= calculate.res_2plate(psi['g'],q_profile,bounds,sigma_1,sigma_2,epsilon)
     print("Gauss's law residual for mean-field PB is = " + str(res))
 
-    return psi['g'], n_profile,np.squeeze(z)
+    return psi['g'], n_profile,np.squeeze(z), [surface1_psi, surface2_psi]
 

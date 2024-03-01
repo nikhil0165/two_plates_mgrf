@@ -7,15 +7,18 @@ def grandfe_mgrf_2plate(psi, n_profile, uself_profile,n_bulk, valency,rad_ions, 
 
     grandfe = 0.5*psi[0]*sigma_1 + 0.5*psi[-1]*sigma_2
     N_exc = np.nonzero(n_profile[:,0])[0][0]
-    psi = psi[N_exc:-N_exc]
-    n_profile = n_profile[N_exc:-N_exc]
-    uself_profile = uself_profile[N_exc:-N_exc]
+    nodes= len(psi)
+    psi = psi[N_exc:nodes-N_exc]
+    n_profile = n_profile[N_exc:nodes-N_exc]
+    uself_profile = uself_profile[N_exc:nodes-N_exc]
 
     nodes = len(n_profile)-1
     n_bulk_profile = np.multiply(np.ones((nodes, len(valency))), n_bulk)
     grandfe_bulk = grandfe_mgrf_bulk(n_bulk_profile,n_bulk, valency,rad_ions, vol_ions,vol_sol, domain, epsilon_s)
     utau = np.zeros((nodes+1, len(valency)))
     taus, weights = np.polynomial.legendre.leggauss(grandfe_quads)
+
+    print('bulk grandfe done ')
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords, dtype = np.float64)  # No mesh for serial / automatic parallelization

@@ -22,33 +22,39 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
+print(f'ncc_cutoff_mgrf = {ncc_cutoff_mgrf}')
+print(f'ncc_cutoff_greens= {ncc_cutoff_greens}')
+print(f'num_ratio = {num_ratio}')
+print(f'tolerance = {tolerance}')
+print(f'N_grid = {N_grid}')
+
 # The EDL structure calculations start here
 
-psi_profile,n_profile,z = dh_2plate.dh_2plate(n_bulk,valency,sigma_f1,sigma_f2,N_grid,domain,epsilon_s)
+psi_profile,n_profile,z, surface_psi = dh_2plate.dh_2plate(n_bulk,valency,sigma_f1,sigma_f2,N_grid,domain,epsilon_s)
 print('DH_done')
-print(psi_profile[0:5])
+print(f'surface_psi = {surface_psi}')
 
-psi_profile, n_profile,z = pb_2plate.pb_2plate(psi_profile,n_bulk,valency,sigma_f1,sigma_f2,domain,epsilon_s)
+psi_profile, n_profile,z, surface_psi = pb_2plate.pb_2plate(psi_profile,n_bulk,valency,sigma_f1,sigma_f2,domain,epsilon_s)
 print('PB_done')
-print(psi_profile[0:5])
+print(f'surface_psi = {surface_psi}')
 
 #print(*psi_profile)
-psi_profile,n_profile,uself_profile, q_complete, z, res= mgrf_2plate.mgrf_2plate(psi_profile[N_exc:-N_exc],n_profile[N_exc:-N_exc],n_bulk,valency,rad_ions,vol_ions, vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
+psi_profile,n_profile,uself_profile, q_complete, z, res, surface_psi= mgrf_2plate.mgrf_2plate(psi_profile,n_profile,n_bulk,valency,rad_ions,vol_ions, vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
 print('MGRF_done')
-print(psi_profile[0:5])
+print(f'surface_psi = {surface_psi}')
 
 time = timeit.default_timer() - start
 print(f'time = {time}')
-
+#
 grandfe = energy_2plate.grandfe_mgrf_2plate(psi_profile,n_profile,uself_profile,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
 print(f'grandfe = {grandfe}')
 
 if cb2_d != 0:
     output_dir = os.getcwd() + '/results-mixture' + str(abs(valency[0]))+ '_' + str(abs(valency[1])) + '_' + str(abs(valency[2]))+ '_' + str(abs(valency[3]))
-    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5)) + '_' + str(round(epsilonr_s_d,5)) + '_' + str(round(epsilonr_p_d,5))
+    file_name = str(round(cb1_d,9)) + '_' + str(round(cb2_d,5)) + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_ions_d[2],2)) + '_' + str(round(rad_ions_d[3],2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5)) + '_' + str(round(epsilonr_s_d,5)) + '_' + str(round(epsilonr_p_d,5))  + '_' +  str(int(N_grid))
 else:
     output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-    file_name = str(round(cb1_d, 9)) + '_' + str(round(cb2_d, 5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0], 2)) + '_' + str(round(rad_ions_d[2], 2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5)) + '_' + str(round(epsilonr_s_d,5)) + '_' + str(round(epsilonr_p_d,5))
+    file_name = str(round(cb1_d, 9)) + '_' + str(round(cb2_d, 5))  + '_' + str(round(float(domain_d), 2)) + '_' + str(round(rad_ions_d[0], 2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(sigma_f1_d, 5)) + '_' + str(round(sigma_f2_d, 5)) + '_' + str(round(epsilonr_s_d,5)) + '_' + str(round(epsilonr_p_d,5)) + '_' +  str(int(N_grid))
 
 # Create the output directory if it doesn't exist
 
@@ -79,8 +85,6 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['ncc_cutoff_mgrf'] = ncc_cutoff_mgrf
     file.attrs['ncc_cutoff_greens'] = ncc_cutoff_greens
     file.attrs['num_ratio'] = num_ratio
-    file.attrs['selfe_ratio'] = selfe_ratio
-    file.attrs['eta_ratio'] = eta_ratio
     file.attrs['tolerance'] = tolerance
     file.attrs['tolerance_pb'] = tolerance_pb
     file.attrs['tolerance_num'] = tolerance_num
@@ -106,8 +110,9 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.create_dataset('nconc', data = n_profile)
     file.create_dataset('uself', data = uself_profile)
     file.create_dataset('charge',data = q_complete)
+    file.create_dataset('surface_psi',data = surface_psi)
 
-    # Store free energy
+    ## Store free energy
     file.attrs['grandfe'] = grandfe # nondimensional
     file.attrs['grandfe_d'] = grandfe*(1/beta) # SI units
     file.attrs['residual'] = res
