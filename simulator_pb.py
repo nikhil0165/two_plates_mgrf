@@ -72,7 +72,8 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['epsilon_p'] = epsilonr_s_d
     file.attrs['cb1'] = cb1_d
     file.attrs['cb2'] = cb2_d
-    file.attrs['domain'] = domain_d
+    file.attrs['domain'] = domain
+    file.attrs['domain_d'] = domain * l_c
     
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
