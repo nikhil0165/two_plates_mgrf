@@ -99,7 +99,7 @@ def Gcap_full(n_bulk_profile, n_bulk, valency, s, domain,epsilon): # \hat{G}
         pert_norm1 = sum(pert1.allreduce_data_norm('c',2) for pert1 in solver1.perturbations)
 
     Pz.change_scales(1)
-    Pz = Pz.allgather_data('g')[0]
+    Pz = Pz['g']
 
     # Fields for G(Qz or log(V))
     Qz = dist.Field(name = 'Qz',bases = zbasis)
@@ -126,7 +126,7 @@ def Gcap_full(n_bulk_profile, n_bulk, valency, s, domain,epsilon): # \hat{G}
         pert_norm2 = sum(pert2.allreduce_data_norm('c',2) for pert2 in solver2.perturbations)
 
     Qz.change_scales(1)
-    Qz = Qz.allgather_data('g')[0]
+    Qz = Qz['g']
 
     ## Sturm-Liouville for G
     G = (1 / epsilon) * np.true_divide(1,Pz - Qz)

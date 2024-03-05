@@ -50,6 +50,9 @@ print(f'time = {time}')
 
 N_exc = np.nonzero(n_profile[:,0])[0][0]
 
+psi_interp = calculate.interpolator(psi_profile[N_exc:len(psi_profile)-N_exc],domain, np.arange(0.1,1.1,0.1)*domain)
+print(psi_interp)
+
 grandfe = energy_2plate.grandfe_mgrf_2plate(psi_profile,n_profile,uself_profile,n_bulk,valency,rad_ions,vol_ions, vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
 print(f'grandfe = {grandfe}')
 

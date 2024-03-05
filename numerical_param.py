@@ -5,7 +5,7 @@ from packages import *
 s_conv = 1e6  # approx for infinity for fourier inverse of greens function
 V_conv = log(s_conv + 1)  # we do fourier inverse integration in the logspace
 quads = 24  # no of legendre gauss quadrature points for fourier inverse of greens function
-N_grid =4096# has to be even, since we often use 3/2 for dealiasing
+N_grid =64# has to be even, since we often use 3/2 for dealiasing
 N_exc = 10 # grid points for the exclusion zone
 dealias = 3/2  # dealiasing factor for dedalus
 ncc_cutoff_mgrf = 1e-3 # some cutoff parameter for non-constant coefficients on LHS of NLBVP of MGRF
@@ -17,5 +17,5 @@ cores = 24  # no of parallel processes in which you want to divide fourier inver
 tolerance = pow(10,-7)  # tolerance for outermost loop for pb_mgrf
 tolerance_pb = pow(10,-7)  # tolerance for inner loop mgrf/outermost loop pb_
 tolerance_num = pow(10,-4)  # tolerance for nconc_mgrf iteration loop
-tolerance_greens = pow(10,-5)  # tolerance for nonlinear problem for greens function
+tolerance_greens = pow(10,-7)  # tolerance for nonlinear problem for greens function
 iter_max = pow(10,7)  # maximum no of iterations for any  iteration loop

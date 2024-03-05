@@ -71,7 +71,22 @@ def profile_extender(psi_profile,n_profile,uself_profile, bounds,dist_exc,N_exc)
     uself_profile = np.concatenate((uself_profile,np.zeros((N_exc,len(n_profile[0,:])))),axis = 0)
     return np.hstack((psi_extend1,psi_profile,psi_extend2)), n_profile,uself_profile,np.hstack((z_ext1,z+dist_exc,z_ext2)), [surface1_psi,surface2_psi]
 
-def interpolator(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
+def interpolator(psi_profile,domain,points):
+
+    grid_points = len(psi_profile)
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,domain))
+
+    psi = dist.Field(name = 'psi',bases = zbasis)
+    psi['g'] = psi_profile
+
+    psi_answer = np.zeros(len(points))
+    for i in range(0,len(points)):
+        psi_answer[i] = psi(z = points[i]).evaluate()['g'][0]
+
+    return psi_answer
+def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
 
     grid_points = len(psi_profile)
     coords = d3.CartesianCoordinates('z')
