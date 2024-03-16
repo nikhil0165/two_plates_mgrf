@@ -17,7 +17,6 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     uself_guess = selfe_2plate.uself_complete(nconc_guess,n_bulk,rad_ions,valency,domain,epsilon_s,epsilon_p)
     eta_guess=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
 
-
     print('selfe done in the interface')
 
     # Bulk properties
@@ -98,8 +97,8 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
             s  =s +1
 
         psi.change_scales(1)
-        psi_g = psi['g']
-        #print('inner loop done')
+        psi_g = psi.allgather_data('g')
+
         if (np.any(np.isnan(psi_g))):
             print('nan in psi')
 
@@ -116,6 +115,7 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
 
         del z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz1,boltz0
         gc.collect()
+
         p = p+1
         if p % 10==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))

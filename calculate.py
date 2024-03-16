@@ -86,6 +86,7 @@ def interpolator(psi_profile,domain,points):
         psi_answer[i] = psi(z = points[i]).evaluate()['g'][0]
 
     return psi_answer
+
 def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
 
     grid_points = len(psi_profile)
@@ -106,8 +107,8 @@ def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid p
     nconc1['g'] = n_profile[:,1]
     nconc0.change_scales(new_grid/grid_points)
     nconc1.change_scales(new_grid/grid_points)
-    nconc[:,0] = nconc0['g']
-    nconc[:,1] = nconc1['g']
+    nconc[:,0] = nconc0.allgather_data('g')
+    nconc[:,1] = nconc1.allgather_data('g')
     if n_ions==4:
         nconc2 = dist.Field(name = 'nconc2',bases = zbasis)
         nconc3 = dist.Field(name = 'nconc3',bases = zbasis)
@@ -115,10 +116,10 @@ def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid p
         nconc3['g'] = n_profile[:,3]
         nconc2.change_scales(new_grid/grid_points)
         nconc3.change_scales(new_grid/grid_points)
-        nconc[:,2] = nconc2['g']
-        nconc[:,3] = nconc3['g']
+        nconc[:,2] = nconc2.allgather_data('g')
+        nconc[:,3] = nconc3.allgather_data('g')
 
-    return psi['g'], nconc,0
+    return psi.allgather_data('g'), nconc,0
 
 def res_2plate(psi_profile,q_profile,bounds,sigma1,sigma2,epsilon): # calculate the residual of gauss law
 
@@ -135,14 +136,14 @@ def res_2plate(psi_profile,q_profile,bounds,sigma1,sigma2,epsilon): # calculate 
     grad_psi = d3.Differentiate(psi,coords['z'])
     lap_psi = d3.Laplacian(psi).evaluate()
     lap_psi.change_scales(1)
-
+    print(np.linalg.norm(lap_psi.allgather_data('g')))
     slope1 = grad_psi(z = 0).evaluate()['g'][0]
     slope2 = grad_psi(z = bounds[1]).evaluate()['g'][0]
     res = np.zeros(nodes)
-    
+    print(np.linalg.norm(lap_psi.allgather_data('g')))
     res[0] = slope1 + sigma1/epsilon
     res[nodes-1] = slope2 -sigma2/epsilon
-    res[1:nodes-1] = lap_psi['g'][1:nodes-1] + q_profile[1:nodes-1]/epsilon
+    res[1:nodes-1] = lap_psi.allgather_data('g')[1:nodes-1] + q_profile[1:nodes-1]/epsilon
     return np.max(np.abs(res))
 
 

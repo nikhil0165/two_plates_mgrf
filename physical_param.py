@@ -13,10 +13,10 @@ rad_sol_d = max(born_radius1,born_radius2)
 domain_d = 30.0 # separation between two plates in Angstroms
 domain_in_d = domain_d # separation between two plates of the initial guess
 
-sigma_f1_d = -0.5 # surface charge density of plate 1
-sigma_f2_d = 1.0 # surface charge density of plate 2
-sigma_in1_d = -0.5 #initial point for starting calculation in case of high surface charge densities
-sigma_in2_d = 1.0 # initial point for starting calculation in case of high surface charge densities
+sigma_f1_d = -0.1# surface charge density of plate 1
+sigma_f2_d = 2*abs(sigma_f1_d) # surface charge density of plate 2
+sigma_in1_d = sigma_f1_d #initial point for starting calculation in case of high surface charge densities
+sigma_in2_d = sigma_f2_d # initial point for starting calculation in case of high surface charge densities
 
 vol_sol_d = 4/3*pi*pow(rad_sol_d*pow(10, -10),3)# volume of solvent molecule assuming its a sphere
 

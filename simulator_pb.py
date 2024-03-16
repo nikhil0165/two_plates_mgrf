@@ -28,6 +28,8 @@ print(f'ncc_cutoff_mgrf = {ncc_cutoff_mgrf}')
 print(f'ncc_cutoff_greens= {ncc_cutoff_greens}')
 print(f'num_ratio = {num_ratio}')
 print(f'tolerance = {tolerance}')
+print(f'tolerance_pb = {tolerance_pb}')
+print(f'tolerance_greens= {tolerance_greens}')
 print(f'N_grid = {N_grid}')
 
 # The EDL structure calculations start here
@@ -41,7 +43,7 @@ print('PB_done')
 print(f'surface_psi = {surface_psi}')
 
 #print(*psi_profile)
-psi_profile,n_profile,uself_profile, q_complete, z, res, surface_psi= mgrf_2plate.mgrf_2plate(psi_profile,n_profile,n_bulk,valency,rad_ions,vol_ions, vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
+psi_profile,n_profile,uself_profile, q_profile, z, res, surface_psi= mgrf_2plate.mgrf_2plate(psi_profile,n_profile,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma_f1,sigma_f2,domain,epsilon_s,epsilon_p)
 print('MGRF_done')
 print(f'surface_psi = {surface_psi}')
 
@@ -109,16 +111,16 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.create_dataset('psi_d', data = psi_profile*psi_c)
     file.create_dataset('nconc_d', data = n_profile*nconc_c/N_A)
     file.create_dataset('uself_d', data = uself_profile*(1/beta))
-    file.create_dataset('charge_d', data = q_complete*(nconc_c*ec))
+    file.create_dataset('charge_d',data = q_profile * (nconc_c * ec))
 
     # Store all spatial profiles (non-dimensional)
     file.create_dataset('z', data = z)
     file.create_dataset('psi', data = psi_profile)
     file.create_dataset('nconc', data = n_profile)
     file.create_dataset('uself', data = uself_profile)
-    file.create_dataset('charge',data = q_complete)
+    file.create_dataset('charge',data = q_profile)
     file.create_dataset('surface_psi',data = surface_psi)
-
+    file.create_dataset('psi_interp',data = psi_interp)
     ## Store free energy
     file.attrs['grandfe'] = grandfe # nondimensional
     file.attrs['grandfe_d'] = grandfe*(1/beta) # SI units

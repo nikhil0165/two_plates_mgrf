@@ -2,7 +2,6 @@ from packages import *
 import calculate
 from numerical_param import*
 
-
 def Gcap_free(grid_points, s, domain,epsilon): # function for \hat{Go}
     
     bounds = (0,domain)
@@ -42,7 +41,7 @@ def Gcap_free(grid_points, s, domain,epsilon): # function for \hat{Go}
         pert_norm0 = sum(pert0.allreduce_data_norm('c',2) for pert0 in solver0.perturbations)
 
     Pz.change_scales(1)
-    Pz = Pz['g']
+    Pz = Pz.allgather_data('g')
     Qz = -Pz
 
     ## Sturm-Liouville for G
@@ -69,6 +68,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): #
     dz = lambda A: d3.Differentiate(A,coords['z'])
     lift_basis = zbasis.derivative_basis(2)
     lift = lambda A,n: d3.Lift(A,lift_basis,n)
+    Zg = np.squeeze(z)
 
     omega_sqr = dist.Field(bases = zbasis)
     omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_profile,valency,epsilon_s)
@@ -88,7 +88,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): #
     problem.add_equation("Pz(z=0) = Pzo")
 
     # Initial guess for Pz
-    Pz['g'] = Pzo
+    Pz['g'] = omega_b*np.tanh(np.arctanh(Pzo/omega_b) + omega_b*Zg)
 
     # Solver
     solver1 = problem.build_solver(ncc_cutoff = ncc_cutoff_greens)
@@ -101,7 +101,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): #
         pert_norm1 = sum(pert1.allreduce_data_norm('c',2) for pert1 in solver1.perturbations)
 
     Pz.change_scales(1)
-    Pz = Pz['g']
+    Pz = Pz.allgather_data('g')
 
     # Fields for G(Qz or log(V))
     Qz = dist.Field(name = 'Qz',bases = zbasis)
@@ -115,7 +115,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): #
     problem1.add_equation("Qz(z=Lz) = Qzo")
 
     # Initial guess for Qz
-    Qz['g'] = Qzo
+    Qz['g'] = omega_b*np.tanh(np.arctanh(Qzo/omega_b) + omega_b*(Zg-Lz))
 
     # Solver
     solver2 = problem1.build_solver(ncc_cutoff = ncc_cutoff_greens)
@@ -128,7 +128,7 @@ def Gcap_full(n_profile,n_bulk,valency,s,domain,epsilon_s,epsilon_p,dist_exc): #
         pert_norm2 = sum(pert2.allreduce_data_norm('c',2) for pert2 in solver2.perturbations)
 
     Qz.change_scales(1)
-    Qz = Qz['g']
+    Qz = Qz.allgather_data('g')
 
     ## Sturm-Liouville for G
     G = (1 / epsilon_s) * np.true_divide(1,Pz - Qz)
