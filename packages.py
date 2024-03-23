@@ -34,6 +34,7 @@ logging.getLogger().setLevel(logging.WARNING)
 ## For plotting
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.ticker
 plt.rcParams['figure.constrained_layout.use'] = True
 mpl.rcParams['axes.linewidth'] = 2 #set the value globally
 plt.rcParams['font.family'] = 'sans-serif'
