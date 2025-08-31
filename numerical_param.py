@@ -1,21 +1,61 @@
+# This file defines numerical parameters used across various simulations.
+# These parameters include grid sizes, tolerances, quadrature points,
+# and computational settings for MGRF, PB, and Green's function calculations.
+
 from packages import *
+import os
 
-## Numerical Parameters
+# ------------------------------------------------------
+# Fourier Inversion Parameters for Green's function
+# ------------------------------------------------------
+s_conv = 32           # Approximation of infinity for Fourier inverse of Green's function
+V_conv = log(s_conv + 1)  # Integration performed in log-space
+quads = 16            # Number of Legendre-Gauss quadrature points for Fourier inverse
 
-s_conv = 32 # approx for infinity for fourier inverse of greens function
-V_conv = log(s_conv + 1)  # we do fourier inverse integration in the logspace
-quads = 24  # no of legendre gauss quadrature points for fourier inverse of greens function
-N_grid =80# has to be even, since we often use 3/2 for dealiasing
-N_exc = 10 # grid points for the exclusion zone
-dealias = 2  # dealiasing factor for dedalus
-ncc_cutoff_mgrf = 1e-3 # some cutoff parameter for non-constant coefficients on LHS of NLBVP of MGRF
-ncc_cutoff_pb = 1e-1 # some cutoff parameter for non-constant coefficients on LHS of NLBVP of PB
-ncc_cutoff_greens = 1e-1 # some cutoff parameter for non-constant coefficients on LHS of NLBVP of G
-num_ratio = 1# mixing ratio of new to old in nconc_mgrf
-grandfe_quads = 20  # no of legendre gauss quadrature points for free energy calculation
-cores = 24  # no of parallel processes in which you want to divide fourier inverse calculation
-tolerance = pow(10,-7)  # tolerance for outermost loop for pb_mgrf
-tolerance_pb = pow(10,-7)  # tolerance for inner loop mgrf/outermost loop pb_
-tolerance_num = pow(10,-4)  # tolerance for nconc_mgrf iteration loop
-tolerance_greens = pow(10,-7)  # tolerance for nonlinear problem for greens function
-iter_max = pow(10,7)  # maximum no of iterations for any  iteration loop
+# ------------------------------------------------------
+# Grid and Dealiasing Parameters
+# ------------------------------------------------------
+N_grid = 128          # Total number of grid points (should be even, 3/2 rule often used for dealiasing)
+N_exc = 10            # Grid points for the exclusion zone near plates
+dealias = 2           # Dealiasing factor used in Dedalus spectral computations
+
+# ------------------------------------------------------
+# Non-Constant Coefficient Cutoffs for NLBVP
+# ------------------------------------------------------
+ncc_cutoff_mgrf = 1e-2   # Cutoff for MGRF solver
+ncc_cutoff_pb = 1e-1     # Cutoff for Poisson-Boltzmann solver
+ncc_cutoff_greens = 1e-1 # Cutoff for Green's function solver
+
+# ------------------------------------------------------
+# Mixing and Quadrature Parameters
+# ------------------------------------------------------
+num_ratio = 0.1          # Mixing ratio of new to old in nconc_mgrf iteration
+grandfe_quads = 25       # Number of Legendre-Gauss points for grand free energy integration
+
+# ------------------------------------------------------
+# Parallelization
+# ------------------------------------------------------
+cores = min(8, os.cpu_count())  # Number of parallel processes for Fourier inverse calculation
+
+# ------------------------------------------------------
+# Tolerances
+# ------------------------------------------------------
+tolerance = 1e-5         # Outer loop convergence tolerance for mgrf_2plate
+tolerance_pb = 1e-7      # Tolerance for inner loop in PB solver
+tolerance_num = 1e-4     # Convergence tolerance for nconc_mgrf iteration
+tolerance_greens = 1e-7  # Tolerance for nonlinear Green's function problem
+
+# ------------------------------------------------------
+# Iteration Limits
+# ------------------------------------------------------
+iter_max = 1e7           # Maximum allowed iterations for any iterative loop
+
+# ------------------------------------------------------
+# Test output when run as a script
+# ------------------------------------------------------
+if __name__ == "__main__":
+    for var in ['N_grid', 'N_exc', 'quads', 'cores', 'tolerance', 'tolerance_pb', 
+                'tolerance_num', 'tolerance_greens', 'num_ratio', 's_conv', 'V_conv',
+                'dealias', 'ncc_cutoff_mgrf', 'ncc_cutoff_pb', 'ncc_cutoff_greens', 
+                'grandfe_quads', 'iter_max']:
+        print(f'{var} = {globals()[var]}')

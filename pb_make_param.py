@@ -4,6 +4,9 @@ import re
 import subprocess
 import sys
 
+# This file generates parameter files for PB simulations with varying domain values.
+# It modifies SLURM job scripts and executes them for each parameter set.
+
 # Define your numpy array with 'domain' values
 param_pattern = r'domain_d\s*=\s*([\d.]+)'
 domain_values = np.hstack((np.arange(5,17,1),np.arange(18,32,2)))

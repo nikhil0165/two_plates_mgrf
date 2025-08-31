@@ -1,45 +1,60 @@
-from packages import*
+# EDL simulation using DH, PB, and MGRF theories with full output
+from packages import *
 from numerical_param import *
 import pb_2plate
 import dh_2plate
+import mgrf_2plate
 import energy_2plate
+import selfe_2plate
 import calculate
-start = timeit.default_timer()
+from physical_param import *
 
-# Argument parser to accept the input files
-parser = argparse.ArgumentParser(description='Code to calculate EDL structure using mean-field Theory with DH as an initial guess')
-parser.add_argument('input_files', nargs='+', help='Paths to the input files for physical parameters')
-args = parser.parse_args()
+if __name__ == "__main__":
+    start = timeit.default_timer()
 
-folder_path = os.path.dirname(args.input_files[0])
-sys.path.insert(0, folder_path)
+    # Argument parser to accept input files
+    parser = argparse.ArgumentParser(description='Calculate EDL using MGRF Theory with PB as initial guess')
+    parser.add_argument('input_files', nargs='+', help='Paths to input files for physical parameters')
+    args = parser.parse_args()
 
-# Load the physical input configuration from the first file in the list
-module_name = os.path.splitext(os.path.basename(args.input_files[0]))[0]
-input_physical = importlib.import_module(module_name)
-variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
-(locals().update(variables))
+    folder_path = os.path.dirname(args.input_files[0])
+    sys.path.insert(0, folder_path)
 
+    # Load physical input configuration
+    module_name = os.path.splitext(os.path.basename(args.input_files[0]))[0]
+    input_physical = importlib.import_module(module_name)
+    variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
+    locals().update(variables)
 
-# The EDL structure calculations start here
+    # Print physical & numerical parameters
+    print(f'cb1_d = {cb1_d}, cb2_d = {cb2_d}')
+    print(f'sigma_f1_d = {sigma_f1_d}, sigma_f2_d = {sigma_f2_d}')
+    print(f'domain_d = {domain_d}, valency = {valency}')
+    print(f'rad_ions_d = {rad_ions_d}, rad_sol_d = {rad_sol_d}')
+    print(f'epsilonr_s_d = {epsilonr_s_d}, epsilonr_p_d = {epsilonr_p_d}')
+    print(f'electrostatic_coupling = {(2*pi*pow(valency[0],3)*(l_c**2)*sqrt(abs(sigma_f1_d*sigma_f2_d))/ec)}')
+    print(f'N_grid = {N_grid}, tolerance = {tolerance}, tolerance_pb = {tolerance_pb}')
 
-psi_complete,nconc_complete,z = dh_2plate.dh_2plate(n_bulk,valency,0.25*sigma_f1,0.25*sigma_f2,N_grid,domain,epsilon_s)
-print('DH_done')
-print(psi_complete[0:5])
+    # DH initial guess
+    psi_profile, n_profile, z, surface_psi = dh_2plate.dh_2plate(n_bulk, valency, sigma_f1, sigma_f2, N_grid, domain, epsilon_s)
+    print('DH_done', f'surface_psi = {surface_psi}')
 
-# psi_complete, nconc_complete,z = pb_2plate.pb_2plate(psi_complete,n_bulk,valency,0.25*sigma_f1,0.25*sigma_f2,domain,epsilon_s)
-# print('PB_done')
-# print(psi_complete[0:5])
+    # PB refinement
+    psi_profile, n_profile, z, surface_psi = pb_2plate.pb_2plate(psi_profile, n_bulk, valency, sigma_f1, sigma_f2, domain, epsilon_s)
+    print('PB_done', f'surface_psi = {surface_psi}')
 
+    # MGRF iteration
 
-psi_complete, nconc_complete,z = pb_2plate.pb_2plate(psi_complete,n_bulk,valency,sigma_f1,sigma_f2,domain,epsilon_s)
-print('PB_done')
-print(psi_complete[0:5])
+    N_exc = np.nonzero(n_profile[:,0])[0][0]
 
-q_complete = calculate.charge_density(nconc_complete,valency)
+    # Grand free energy
+    grandfe = energy_2plate.grandfe_pb_2plate(psi_profile, n_profile, n_bulk, valency, sigma_f1, sigma_f2, domain)
+    
+    print(f'grandfe = {grandfe}')
 
-grandfe = energy_2plate.grandfe_pb_2plate(psi_complete,nconc_complete,n_bulk,valency,sigma_f1,sigma_f2,domain)
-print(grandfe)
+    elapsed_time = timeit.default_timer() - start
+    print(f'Time = {elapsed_time}')
+
 
 if cb2_d != 0:
     output_dir = os.getcwd() + '/results-pb-mixture' + str(abs(valency[0]))+ '_' + str(abs(valency[1])) + '-' + str(abs(valency[2]))+ '_' + str(abs(valency[3]))
@@ -77,15 +92,13 @@ with h5py.File(output_dir + '/pb_' + file_name + '.h5', 'w') as file:
 
     # Store all spatial profiles  (SI units)
     file.create_dataset('z_d', data = z*l_c)
-    file.create_dataset('psi_d', data = psi_complete*psi_c)
-    file.create_dataset('nconc_d', data = nconc_complete*nconc_c/N_A)
-    file.create_dataset('charge_d', data = q_complete*(nconc_c*ec))
+    file.create_dataset('psi_d', data = psi_profile*psi_c)
+    file.create_dataset('nconc_d', data = n_profile*nconc_c/N_A)
 
     # Store all spatial profiles (non-dimensional)
     file.create_dataset('z', data = z)
-    file.create_dataset('psi', data = psi_complete)
-    file.create_dataset('nconc', data = nconc_complete)
-    file.create_dataset('charge',data = q_complete)
+    file.create_dataset('psi', data = psi_profile)
+    file.create_dataset('nconc', data = n_profile)
 
     # Store free energy
     file.attrs['grandfe'] = grandfe # nondimensional

@@ -1,3 +1,6 @@
+# This file generates parameter files for simulations with varying domain values.
+# It modifies SLURM job scripts and executes them for each parameter set.
+
 import numpy as np
 import os
 import re
