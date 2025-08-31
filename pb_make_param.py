@@ -1,5 +1,9 @@
 import numpy as np
 import os
+"""
+Script to generate multiple parameter files and SLURM job scripts for a range of domain values for PB simulations.
+Duplicates a template parameter file, modifies the domain, and submits jobs to SLURM.
+"""
 import re
 import subprocess
 import sys
@@ -19,15 +23,19 @@ slurm_output_name = '#SBATCH --output=ocr31%j.out'
 
 
 # Create the output directory if it doesn't exist
+# Create the output directory if it doesn't exist
 if not os.path.exists(param_dir):
     os.mkdir(param_dir)
 
 # Read the contents of the param file
+# Read the contents of the param file
 with open(slurm_param_file,'r') as f:
     param_contents = f.read()
+# Read the contents of the job file
 
 # Read the contents of the job file
 with open(slurm_script, 'r') as f:
+# Find the 'domain' parameter in the contents
     slurm_contents = f.read()
 
 # Find the 'domain' parameter in the contents
