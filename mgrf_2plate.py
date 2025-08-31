@@ -26,10 +26,8 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
     # Initialize profiles with PB guess
     psi_profile = np.copy(psi_guess)           
     n_profile= nconc_guess
-    eta_profile=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)   # local volume fraction
-    uself_profile = selfe_2plate.uself_complete(nconc_guess,n_bulk,rad_ions,valency,domain,epsilon) # initial self-energy profile
-    uself_guess= np.copy(uself_profile)
-    eta_guess = np.copy(eta_profile)
+    eta_guess=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)   # local volume fraction
+    uself_guess = selfe_2plate.uself_complete(nconc_guess,n_bulk,rad_ions,valency,domain,epsilon) # initial self-energy profile
 
     print('selfe_done')
 
@@ -40,9 +38,6 @@ def mgrf_2plate(psi_guess,nconc_guess,n_bulk,valency,rad_ions,vol_ions,vol_sol,s
 
     # Check if ions and solvent have equal volumes (simplifies calculation)
     equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
-
-    # Update number density profile based on MGRF closure (coefficients returned too)
-    n_profile, coeffs = num_concn.nconc_mgrf(psi_profile, uself_profile, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk, equal_vols)
 
     Z = None  # Will hold the spatial grid for return
     convergence_tot = np.inf   # Overall convergence criterion
