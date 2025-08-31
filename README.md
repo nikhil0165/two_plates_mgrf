@@ -24,11 +24,17 @@ This package enables researchers to:
 <details>
 <summary>References & Citations</summary>
 
-If you use this code, please cite:
+The code implements equations derived in:
+- Agrawal and Wang, [Phys. Rev. Lett. 2022, 129, 228001](https://doi.org/10.1103/PhysRevLett.129.228001)
+- Agrawal and Wang, [J. Chem. Theory Comput. 2022, 18, 6271–6280](https://doi.org/10.1021/acs.jctc.2c00607)
 
-- Agrawal & Wang, [Phys. Rev. Lett. 2022, 129, 228001](https://doi.org/10.1103/PhysRevLett.129.228001)
-- Agrawal & Wang, [J. Chem. Theory Comput. 2022, 18, 6271–6280](https://doi.org/10.1021/acs.jctc.2c00607)
+The iteration scheme for solving non-linear equations is partially adapted from:
+- Xu and Maggs, [J. Comp. Phys. 275 (2014): 310-322](https://doi.org/10.1016/j.jcp.2014.07.004)
+
+This code can be used to reproduce results presented in:
 - Nikhil R. Agrawal, Ravtej Kaur, Carlo Carraro, and Rui Wang [arXiv:2306.10137](https://doi.org/10.48550/arXiv.2306.10137)
+- Nikhil R. Agrawal, Carlo Carraro, and Rui Wang [J. Chem. Phys. 161, 204902 (2024)](https://doi.org/10.1063/5.0235611)
+
 
 </details>
 
