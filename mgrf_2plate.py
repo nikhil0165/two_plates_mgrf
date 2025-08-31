@@ -141,8 +141,7 @@ def mgrf_2plate(psi_guess, nconc_guess, n_bulk, valency, rad_ions, vol_ions, vol
                                             eta_bulk, equal_vols)
 
         # Check convergence
-        convergence_tot = np.true_divide(np.linalg.norm(n_profile - nconc_guess),
-                                         np.linalg.norm(nconc_guess))
+        convergence_tot = np.true_divide(np.linalg.norm(n_profile - nconc_guess), np.linalg.norm(nconc_guess))
 
         # Relaxation update
         nconc_guess = num_ratio * n_profile + (1 - num_ratio) * nconc_guess
